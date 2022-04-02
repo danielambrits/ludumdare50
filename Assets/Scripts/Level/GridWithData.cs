@@ -12,6 +12,14 @@ public class GridWithData : MonoBehaviour
     [SerializeField]
     private GameObject groundTilePrefab;
 
+    // TODO generate these
+    [SerializeField]
+    public Vector2Int[] housePositions;
+    [SerializeField]
+    public Vector2Int[] factoryPositions;
+    [SerializeField]
+    public Vector2Int[] helipadPositions;
+
     public struct CellData {
         public bool isInspected;
         public GroundTile tile;
@@ -19,7 +27,7 @@ public class GridWithData : MonoBehaviour
 
     private Dictionary<Vector2Int, CellData> gridMap = new Dictionary<Vector2Int, CellData>();
 
-    void Awake() {
+    void Start() {
         for (int i = -size.x/2; i <= size.x/2; i++) {
             for (int j = -size.y/2; j <= size.y/2; j++) {
                 GameObject tile = Instantiate(groundTilePrefab, grid.CellToWorld(new Vector3Int(i, j, 0)), Quaternion.Euler(90, 0, 0));
@@ -30,6 +38,16 @@ public class GridWithData : MonoBehaviour
                 cellData.tile = tile.GetComponent<GroundTile>();
                 gridMap.Add(gridPosition, cellData);
             }
+        }
+
+        foreach (var position in housePositions) {
+            gridMap[position].tile.BuildHouse();
+        }
+        foreach (var position in factoryPositions) {
+            gridMap[position].tile.BuildFactory();
+        }
+        foreach (var position in helipadPositions) {
+            gridMap[position].tile.BuildHelipad();
         }
     }
 

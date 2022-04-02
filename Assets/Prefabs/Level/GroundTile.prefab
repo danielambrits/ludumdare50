@@ -47,6 +47,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 50582d7194d32ad4c835036218b61025, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  helicopterCooldown: 5
+  evacuationCooldown: 3
+  cooldownUiPrefab: {fileID: 7989669513438903040, guid: 1f164133fb7a7994d995f12916c22400, type: 3}
+  isCorrupted: 0
+  type: 0
 --- !u!33 &7665131029579691230
 MeshFilter:
   m_ObjectHideFlags: 0

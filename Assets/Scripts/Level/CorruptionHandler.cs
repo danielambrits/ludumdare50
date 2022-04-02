@@ -7,7 +7,16 @@ public class CorruptionHandler : MonoBehaviour
     private GridWithData grid;
     [SerializeField]
     private Vector2Int startingPosition;
+    [SerializeField]
+    private int spreadPeriod;
+    [SerializeField]
+    private int spreadDelayLength;
 
+    [Header("UI")]
+    [SerializeField]
+    private OvertextHandler uiHandler;
+
+    private int spreadDelayCounter;
     private int iterationCounter;
 
     private Stack<Vector2Int> inspectablePositions = new Stack<Vector2Int>();
@@ -15,6 +24,7 @@ public class CorruptionHandler : MonoBehaviour
 
     void Start() {
         iterationCounter = 0;
+        spreadDelayCounter = spreadPeriod;
 
         gridCorners.Add(new Vector2Int(grid.size.x/2, grid.size.y/2));
         gridCorners.Add(new Vector2Int(-grid.size.x/2, grid.size.y/2));
@@ -23,7 +33,16 @@ public class CorruptionHandler : MonoBehaviour
     }
 
     public void Apply() {
+        spreadDelayCounter--;
+        uiHandler.SetValue(spreadDelayCounter);
+        if (spreadDelayCounter > 0) {
+            Debug.Log("Nuclear spread in " + spreadDelayCounter);
+            return;
+        }
+
+        spreadDelayCounter = spreadPeriod;
         iterationCounter++;
+
         for (int x = startingPosition.x - iterationCounter; x <= startingPosition.x + iterationCounter; x++) {
             for (int y = startingPosition.y - iterationCounter; y <= startingPosition.y + iterationCounter; y++) {
                 if ((x - startingPosition.x) * (x - startingPosition.x) + (y - startingPosition.y) * (y - startingPosition.y) < iterationCounter * iterationCounter) {
@@ -39,6 +58,10 @@ public class CorruptionHandler : MonoBehaviour
         }
     }
 
+    public void AddDelay() {
+        spreadDelayCounter += spreadDelayLength;
+    }
+
     public bool CheckWallDone() {
         // Implements a Flood Fill algorithm from the starting position.
         grid.ClearAllInspection();
@@ -50,17 +73,15 @@ public class CorruptionHandler : MonoBehaviour
 
         while (inspectablePositions.Count > 0) {
             if (maxIterations-- < 0) {
-                Debug.Log("out of memory");
+                Debug.LogWarning("Flood Fill took too may iterations.");
                 return false;
             }
 
             Vector2Int gridPosition = inspectablePositions.Pop();
-            // Debug.Log(gridPosition);
 
-            // if we reached any of the corners, the wall can not be done
+            // If we reached any of the corners, it is impossible that the wall is built in a closed shape
             foreach (var corner in gridCorners) {
                 if (corner == gridPosition) {
-                    Debug.Log("not yet");
                     inspectablePositions.Clear();
                     return false;
                 }
@@ -73,7 +94,7 @@ public class CorruptionHandler : MonoBehaviour
                 }
                 cellData.isInspected = true;
                 grid.SetCellData(gridPosition, cellData);
-                if (!cellData.tile.hasWall) {
+                if (cellData.tile.type != GroundTile.Type.Wall) {
                     inspectablePositions.Push(new Vector2Int(gridPosition.x - 1, gridPosition.y));
                     inspectablePositions.Push(new Vector2Int(gridPosition.x + 1, gridPosition.y));
                     inspectablePositions.Push(new Vector2Int(gridPosition.x, gridPosition.y - 1));
@@ -82,7 +103,7 @@ public class CorruptionHandler : MonoBehaviour
             }
         }
 
-        // corners were not reached -> the wall is done
+        // Corners were not reached -> the wall is done
         Debug.Log("WIN!");
         inspectablePositions.Clear();
         return true;     
