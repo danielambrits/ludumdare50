@@ -6,6 +6,8 @@ public class TurnManager : MonoBehaviour
 {
     [SerializeField]
     private CorruptionHandler corruptionHandler;
+    [SerializeField]
+    private PointerInputHandler playerInput;
 
     [SerializeField]
     private TextMeshProUGUI remainingWallUi;
@@ -30,25 +32,25 @@ public class TurnManager : MonoBehaviour
     }
 
     void OnEnable() {
-        GroundTile.OnWallBuilt.AddListener(OnWallBuilt);
-        GroundTile.OnHouseBuilt.AddListener(OnHouseBuilt);
-        GroundTile.OnHouseDestroyed.AddListener(OnHouseDestroyed);
-        GroundTile.OnDelayedHouseBuilt.AddListener(TriggerNextTurn);
-        GroundTile.OnFactoryBuilt.AddListener(OnFactoryBuilt);
-        GroundTile.OnFactoryDestroyed.AddListener(OnFactoryDestroyed);
-        GroundTile.OnDelayedFactoryBuilt.AddListener(TriggerNextTurn);
-        GroundTile.OnHelicopterActivated.AddListener(OnHelicopterUsed);
+        Tile.OnWallBuilt.AddListener(OnWallBuilt);
+        Tile.OnHouseBuilt.AddListener(OnHouseBuilt);
+        Tile.OnHouseDestroyed.AddListener(OnHouseDestroyed);
+        Tile.OnDelayedHouseBuilt.AddListener(TriggerNextTurn);
+        Tile.OnFactoryBuilt.AddListener(OnFactoryBuilt);
+        Tile.OnFactoryDestroyed.AddListener(OnFactoryDestroyed);
+        Tile.OnDelayedFactoryBuilt.AddListener(TriggerNextTurn);
+        Helipad.OnHelicopterActivated.AddListener(OnHelicopterUsed);
     }
 
     void OnDisable() {
-        GroundTile.OnWallBuilt.RemoveListener(OnWallBuilt);
-        GroundTile.OnHouseBuilt.RemoveListener(OnHouseBuilt);
-        GroundTile.OnHouseDestroyed.RemoveListener(OnHouseDestroyed);
-        GroundTile.OnDelayedHouseBuilt.RemoveListener(TriggerNextTurn);
-        GroundTile.OnFactoryBuilt.RemoveListener(OnFactoryBuilt);
-        GroundTile.OnFactoryDestroyed.RemoveListener(OnFactoryDestroyed);
-        GroundTile.OnDelayedFactoryBuilt.RemoveListener(TriggerNextTurn);
-        GroundTile.OnHelicopterActivated.RemoveListener(OnHelicopterUsed);
+        Tile.OnWallBuilt.RemoveListener(OnWallBuilt);
+        Tile.OnHouseBuilt.RemoveListener(OnHouseBuilt);
+        Tile.OnHouseDestroyed.RemoveListener(OnHouseDestroyed);
+        Tile.OnDelayedHouseBuilt.RemoveListener(TriggerNextTurn);
+        Tile.OnFactoryBuilt.RemoveListener(OnFactoryBuilt);
+        Tile.OnFactoryDestroyed.RemoveListener(OnFactoryDestroyed);
+        Tile.OnDelayedFactoryBuilt.RemoveListener(TriggerNextTurn);
+        Helipad.OnHelicopterActivated.RemoveListener(OnHelicopterUsed);
     }
 
     private void OnWallBuilt() {
@@ -57,10 +59,12 @@ public class TurnManager : MonoBehaviour
             case CorruptionHandler.WallState.Done:
                 // TODO trigger proper endgame
                 gameEndUi.text = "SUCCESS";
+        playerInput.enabled = false;
                 OnGameWon.Invoke();
                 break;
             case CorruptionHandler.WallState.Unsolvable:
                 gameEndUi.text = "GAME OVER";
+        playerInput.enabled = false;
                 OnGameLost.Invoke();
                 // TODO trigger game over state
                 break;
@@ -80,6 +84,7 @@ public class TurnManager : MonoBehaviour
     }
 
     private void TriggerNextTurn() {
+        playerInput.enabled = false;
         OnPlayerTurnEnded.Invoke();
         corruptionHandler.Apply();
         remainingWallCount = GetPlacableWallCount();
@@ -91,6 +96,7 @@ public class TurnManager : MonoBehaviour
             remainingWallUi.text = string.Format("Buildable walls: {0}", remainingWallCount);
             Debug.Log(string.Format("Builadbe walls this turn: {0}", remainingWallCount));
             OnCorruptionTurnEnded.Invoke();
+            playerInput.enabled = true;
         }
     }
 

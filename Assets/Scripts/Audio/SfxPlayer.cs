@@ -29,12 +29,12 @@ public class SfxPlayer : MonoBehaviour
     }
 
     void OnEnable() {
-        GroundTile.OnWallBuilt.AddListener(() => PlayRandomSfx(wallBuildClips));
-        GroundTile.OnHelicopterActivated.AddListener(() => PlayRandomSfx(helicopterClips));
-        GroundTile.OnDelayedHouseBuilt.AddListener(() => PlayRandomSfx(evacuationStartClips));
-        GroundTile.OnDelayedFactoryBuilt.AddListener(() => PlayRandomSfx(evacuationStartClips));
-        GroundTile.OnHouseBuilt.AddListener(() => PlayRandomSfx(evacuationEndClips));
-        GroundTile.OnFactoryBuilt.AddListener(() => PlayRandomSfx(evacuationEndClips));
+        Tile.OnWallBuilt.AddListener(() => PlayRandomSfx(wallBuildClips));
+        Tile.OnDelayedHouseBuilt.AddListener(() => PlayRandomSfx(evacuationStartClips));
+        Tile.OnDelayedFactoryBuilt.AddListener(() => PlayRandomSfx(evacuationStartClips));
+        Tile.OnHouseBuilt.AddListener(() => PlayRandomSfx(evacuationEndClips));
+        Tile.OnFactoryBuilt.AddListener(() => PlayRandomSfx(evacuationEndClips));
+        Helipad.OnHelicopterActivated.AddListener(() => PlayRandomSfx(helicopterClips));
         CorruptionHandler.OnSpread.AddListener(() => PlayRandomSfx(spreadClips));
         TurnManager.OnCorruptionTurnEnded.AddListener(() => PlayRandomSfx(turnStartClips));
         TurnManager.OnPlayerTurnEnded.AddListener(() => PlayRandomSfx(turnEndClips));
@@ -43,12 +43,12 @@ public class SfxPlayer : MonoBehaviour
     }
 
     void OnDisable() {
-        GroundTile.OnWallBuilt.RemoveListener(() => PlayRandomSfx(wallBuildClips));
-        GroundTile.OnHelicopterActivated.RemoveListener(() => PlayRandomSfx(helicopterClips));
-        GroundTile.OnDelayedHouseBuilt.RemoveListener(() => PlayRandomSfx(evacuationStartClips));
-        GroundTile.OnDelayedFactoryBuilt.RemoveListener(() => PlayRandomSfx(evacuationStartClips));
-        GroundTile.OnHouseBuilt.RemoveListener(() => PlayRandomSfx(evacuationEndClips));
-        GroundTile.OnFactoryBuilt.RemoveListener(() => PlayRandomSfx(evacuationEndClips));
+        Tile.OnWallBuilt.RemoveListener(() => PlayRandomSfx(wallBuildClips));
+        Tile.OnDelayedHouseBuilt.RemoveListener(() => PlayRandomSfx(evacuationStartClips));
+        Tile.OnDelayedFactoryBuilt.RemoveListener(() => PlayRandomSfx(evacuationStartClips));
+        Tile.OnHouseBuilt.RemoveListener(() => PlayRandomSfx(evacuationEndClips));
+        Tile.OnFactoryBuilt.RemoveListener(() => PlayRandomSfx(evacuationEndClips));
+        Helipad.OnHelicopterActivated.RemoveListener(() => PlayRandomSfx(helicopterClips));
         CorruptionHandler.OnSpread.RemoveListener(() => PlayRandomSfx(spreadClips));
         TurnManager.OnCorruptionTurnEnded.RemoveListener(() => PlayRandomSfx(turnStartClips));
         TurnManager.OnPlayerTurnEnded.RemoveListener(() => PlayRandomSfx(turnEndClips));

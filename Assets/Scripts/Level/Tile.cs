@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.Events;
 
 [RequireComponent(typeof(MeshRenderer))]
-public class GroundTile : MonoBehaviour, IPointerInteractable
+public class Tile : MonoBehaviour, IPointerInteractable
 {
     public enum Type {
         Default,
@@ -14,25 +14,34 @@ public class GroundTile : MonoBehaviour, IPointerInteractable
         FactoryUnderConstruction,
     }
 
+    public Type type;
+    public bool isCorrupted;
+
     [SerializeField]
-    private int helicopterCooldown;
+    private Color selectionColor;
+
+    [Header("Building meshes")]
     [SerializeField]
-    private int evacuationCooldown;
+    private GameObject wallPrefab;
     [SerializeField]
-    private GameObject cooldownUiPrefab;
+    private GameObject helipadPrefab;
+    [SerializeField]
+    private GameObject housePrefab;
+    [SerializeField]
+    private GameObject factoryPrefab;
 
     private MeshRenderer meshRenderer;
     private Color defaultColor;
+
+    private GameObject building;
 
     private OvertextHandler uiHandler;
 
     private int cooldown;
     
-    static private GroundTile tileToEvacuate = null;
+    static private Tile tileToEvacuate = null;
     static private bool evacuationAvailable = true;
 
-    public bool isCorrupted;
-    public Type type;
 
     public static UnityEvent OnWallBuilt = new UnityEvent();
     public static UnityEvent OnHouseBuilt = new UnityEvent();
@@ -42,29 +51,20 @@ public class GroundTile : MonoBehaviour, IPointerInteractable
     public static UnityEvent OnFactoryDestroyed = new UnityEvent();
     public static UnityEvent OnDelayedFactoryBuilt = new UnityEvent();
 
-    public static UnityEvent OnHelicopterActivated = new UnityEvent();
-
     void Awake() {
         meshRenderer = GetComponent<MeshRenderer>();
         defaultColor = meshRenderer.material.color;
         type = Type.Default;
         isCorrupted = false;
         uiHandler = null;
+        building = null;
 
         tileToEvacuate = null;
         evacuationAvailable = true;
     }
 
-    void OnEnable() {
-        TurnManager.OnCorruptionTurnEnded.AddListener(ProgressCooldown);
-    }
-
-    void OnDisable() {
-        TurnManager.OnCorruptionTurnEnded.RemoveListener(ProgressCooldown);
-    }
-
     public void OnPointerEnter() {
-        meshRenderer.material.color = Color.magenta;
+        meshRenderer.material.color = selectionColor;
     }
 
     public void OnPointerExit() {
@@ -73,12 +73,16 @@ public class GroundTile : MonoBehaviour, IPointerInteractable
 
     public void OnPointerDown() {
         if (tileToEvacuate != null) {
-            if (type == Type.Default) {
+            if (type == Type.Default && !isCorrupted) {
                 switch (tileToEvacuate.type) {
                     case Type.House:
+                        building = tileToEvacuate.building;
+                        building.GetComponent<WallResourceBuilding>().Relocate(this);
                         BuildDelayedHouse();
                         break;
                     case Type.Factory:
+                        building = tileToEvacuate.building;
+                        building.GetComponent<WallResourceBuilding>().Relocate(this);
                         BuildDelayedFactory();
                         break;
                     default:
@@ -93,10 +97,11 @@ public class GroundTile : MonoBehaviour, IPointerInteractable
                 case Type.Default:
                     BuildWall();
                     break;
-                case Type.Helipad:
-                    ActivateHelicopter();
+                case Type.House:
+                    if (evacuationAvailable) {
+                        tileToEvacuate = this;
+                    }
                     break;
-                case Type.House:    // fall-through
                 case Type.Factory:
                     if (evacuationAvailable) {
                         tileToEvacuate = this;
@@ -114,6 +119,9 @@ public class GroundTile : MonoBehaviour, IPointerInteractable
             return;
         }
         isCorrupted = true;
+        if (building != null) {
+            building.SetActive(false);
+        }
         switch (type) {
             case Type.Wall:
                 return;
@@ -133,11 +141,15 @@ public class GroundTile : MonoBehaviour, IPointerInteractable
 
     public void Evacuate() {
         switch (type) {
-            case Type.House: // fall-through
+            case Type.House:
+                type = Type.Default;
+                building = null;
+                OnHouseDestroyed.Invoke();
+                break;
             case Type.Factory:
                 type = Type.Default;
-                defaultColor = Color.blue; // TODO
-                meshRenderer.material.color = defaultColor;
+                building = null;
+                OnFactoryDestroyed.Invoke();
                 break;
             default:
                 // NOP
@@ -147,79 +159,65 @@ public class GroundTile : MonoBehaviour, IPointerInteractable
 
     private void BuildWall() {
         type = Type.Wall;
-        defaultColor = Color.gray;
-        meshRenderer.material.color = defaultColor;
+        GameObject wallObject = Instantiate(wallPrefab, transform.position, Quaternion.identity);
+        wallObject.transform.SetParent(transform);
         OnWallBuilt.Invoke();
     }
 
     public void BuildHouse() {
         type = Type.House;
-        defaultColor = Color.green;
-        meshRenderer.material.color = defaultColor;
+        building = Instantiate(housePrefab, transform.position + new Vector3(0f, 0.5f, 0f), Quaternion.identity);
+        building.transform.SetParent(transform);
+        building.GetComponent<WallResourceBuilding>().SetBaseTile(this);
         OnHouseBuilt.Invoke();
     }
 
     private void BuildDelayedHouse() {
         type = Type.HouseUnderConstruction;
-        cooldown = evacuationCooldown;
         evacuationAvailable = false;
-        
-        uiHandler = Instantiate(cooldownUiPrefab, transform.position, Quaternion.identity).GetComponent<OvertextHandler>();
-        uiHandler.SetValue(cooldown);
         OnDelayedHouseBuilt.Invoke();
     }
 
     public void BuildFactory() {
         type = Type.Factory;
-        defaultColor = Color.yellow;
-        meshRenderer.material.color = defaultColor;
+        building = Instantiate(factoryPrefab, transform.position, Quaternion.identity);
+        building.transform.SetParent(transform);
+        building.GetComponent<WallResourceBuilding>().SetBaseTile(this);
         OnFactoryBuilt.Invoke();
     }
 
     private void BuildDelayedFactory() {
         type = Type.FactoryUnderConstruction;
-        cooldown = evacuationCooldown;
         evacuationAvailable = false;
-
-        uiHandler = Instantiate(cooldownUiPrefab, transform.position, Quaternion.identity).GetComponent<OvertextHandler>();
-        uiHandler.SetValue(cooldown);
         OnDelayedFactoryBuilt.Invoke();
     }
 
     public void BuildHelipad() {
         type = Type.Helipad;
-        defaultColor = Color.cyan;
-        meshRenderer.material.color = defaultColor;
-        uiHandler = Instantiate(cooldownUiPrefab, transform.position, Quaternion.identity).GetComponent<OvertextHandler>();
-        uiHandler.SetValue(0);
+        building = Instantiate(helipadPrefab, transform.position + new Vector3(0f, 0.5f, 0f), Quaternion.identity);
+        building.transform.SetParent(transform);
     }
 
-    private void ActivateHelicopter() {
-        if ((type != Type.Helipad) || (cooldown > 0)) {
-            return;
+    public void NotifyToEvacuate() {
+        if (evacuationAvailable) {
+            tileToEvacuate = this;
         }
-        cooldown = helicopterCooldown;
-        uiHandler.SetValue(cooldown);
-        OnHelicopterActivated.Invoke();
     }
 
-    private void ProgressCooldown() {
-        if (cooldown > 0) {
-            cooldown--;
-            uiHandler.SetValue(cooldown);
-
-            if (cooldown == 0) {
-                switch (type) {
-                    case Type.HouseUnderConstruction:
-                        BuildHouse();
-                        evacuationAvailable = true;
-                        break;
-                    case Type.FactoryUnderConstruction:
-                        BuildFactory();
-                        evacuationAvailable = true;
-                        break;
-                }
-            }
+    public void NotifySuccesfulEvacuation() {
+        evacuationAvailable = true;
+        switch (type) {
+            case Type.HouseUnderConstruction:
+                type = Type.House;
+                OnHouseBuilt.Invoke();
+                break;
+            case Type.FactoryUnderConstruction:
+                type = Type.Factory;
+                OnFactoryBuilt.Invoke();
+                break;
+            default:
+                // NOP
+                break;
         }
     }
 

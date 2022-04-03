@@ -1036,13 +1036,13 @@ MonoBehaviour:
   size: {x: 20, y: 20}
   groundTilePrefab: {fileID: 7665131029579691229, guid: e09f118db6a41824681bb794d9346a77, type: 3}
   housePositions:
-  - {x: 5, y: 2}
+  - {x: 5, y: 3}
   - {x: -2, y: 1}
-  - {x: -3, y: -3}
+  - {x: -4, y: -3}
   factoryPositions:
-  - {x: 3, y: 4}
+  - {x: 3, y: 5}
   - {x: 2, y: -2}
-  - {x: -2, y: -2}
+  - {x: -3, y: -2}
   helipadPositions:
   - {x: 3, y: 2}
 --- !u!1 &1764150756
@@ -1108,6 +1108,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   corruptionHandler: {fileID: 1955055881}
+  playerInput: {fileID: 1764150757}
   remainingWallUi: {fileID: 733771473}
   gameEndUi: {fileID: 111667398}
 --- !u!114 &1764150760

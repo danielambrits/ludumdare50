@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 7665131029579691231}
   - component: {fileID: 7665131029579691228}
   m_Layer: 6
-  m_Name: GroundTile
+  m_Name: Tile
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -29,7 +29,7 @@ Transform:
   m_GameObject: {fileID: 7665131029579691229}
   m_LocalRotation: {x: 0.7071068, y: 0, z: 0, w: 0.7071068}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.99, y: 0.99, z: 0.99}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -47,11 +47,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 50582d7194d32ad4c835036218b61025, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  helicopterCooldown: 5
-  evacuationCooldown: 3
-  cooldownUiPrefab: {fileID: 7989669513438903040, guid: 1f164133fb7a7994d995f12916c22400, type: 3}
-  isCorrupted: 0
   type: 0
+  isCorrupted: 0
+  selectionColor: {r: 0.5849056, g: 0.18485224, b: 0.1927686, a: 1}
+  wallPrefab: {fileID: 5224560716216356796, guid: de2ff039165033b46a89ce1a89277b3a, type: 3}
+  helipadPrefab: {fileID: 5702811668853313034, guid: db868ca260e3c3840a04b897fd56d22f, type: 3}
+  housePrefab: {fileID: 6814462683822493542, guid: 4a2195a7541a5304a882942abdd9c7f5, type: 3}
+  factoryPrefab: {fileID: 6641907660522964024, guid: 350c9d3c63c2a2c4ab6161ffa7ffda5b, type: 3}
 --- !u!33 &7665131029579691230
 MeshFilter:
   m_ObjectHideFlags: 0

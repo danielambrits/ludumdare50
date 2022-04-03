@@ -59,6 +59,8 @@ public class CorruptionHandler : MonoBehaviour
         spreadDelayCounter = spreadPeriod;
         iterationCounter++;
         corruptedCellCount = 0;
+        uiHandler.SetValue(spreadDelayCounter);
+        Debug.Log("Spread! iteration " + iterationCounter);
 
         for (int x = startingPosition.x - iterationCounter; x <= startingPosition.x + iterationCounter; x++) {
             for (int y = startingPosition.y - iterationCounter; y <= startingPosition.y + iterationCounter; y++) {
@@ -118,7 +120,7 @@ public class CorruptionHandler : MonoBehaviour
                 }
                 cellData.isInspected = true;
                 grid.SetCellData(gridPosition, cellData);
-                if (cellData.tile.type != GroundTile.Type.Wall) {
+                if (cellData.tile.type != Tile.Type.Wall) {
                     inspectablePositions.Push(new Vector2Int(gridPosition.x - 1, gridPosition.y));
                     inspectablePositions.Push(new Vector2Int(gridPosition.x + 1, gridPosition.y));
                     inspectablePositions.Push(new Vector2Int(gridPosition.x, gridPosition.y - 1));

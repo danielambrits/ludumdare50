@@ -22,7 +22,7 @@ public class GridWithData : MonoBehaviour
 
     public struct CellData {
         public bool isInspected;
-        public GroundTile tile;
+        public Tile tile;
     }
 
     private Dictionary<Vector2Int, CellData> gridMap = new Dictionary<Vector2Int, CellData>();
@@ -35,7 +35,7 @@ public class GridWithData : MonoBehaviour
                 Vector2Int gridPosition = new Vector2Int(i, j);
                 CellData cellData;
                 cellData.isInspected = true;
-                cellData.tile = tile.GetComponent<GroundTile>();
+                cellData.tile = tile.GetComponent<Tile>();
                 gridMap.Add(gridPosition, cellData);
             }
         }
