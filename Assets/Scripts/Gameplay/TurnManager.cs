@@ -1,10 +1,16 @@
 using UnityEngine;
 using UnityEngine.Events;
+using TMPro;
 
 public class TurnManager : MonoBehaviour
 {
     [SerializeField]
     private CorruptionHandler corruptionHandler;
+
+    [SerializeField]
+    private TextMeshProUGUI remainingWallUi;
+    [SerializeField]
+    private TextMeshProUGUI gameEndUi;
 
     private int houseCount;
     private int factoryCount;
@@ -23,8 +29,10 @@ public class TurnManager : MonoBehaviour
         GroundTile.OnWallBuilt.AddListener(OnWallBuilt);
         GroundTile.OnHouseBuilt.AddListener(OnHouseBuilt);
         GroundTile.OnHouseDestroyed.AddListener(OnHouseDestroyed);
+        GroundTile.OnDelayedHouseBuilt.AddListener(TriggerNextTurn);
         GroundTile.OnFactoryBuilt.AddListener(OnFactoryBuilt);
         GroundTile.OnFactoryDestroyed.AddListener(OnFactoryDestroyed);
+        GroundTile.OnDelayedFactoryBuilt.AddListener(TriggerNextTurn);
         GroundTile.OnHelicopterActivated.AddListener(OnHelicopterUsed);
     }
 
@@ -32,22 +40,28 @@ public class TurnManager : MonoBehaviour
         GroundTile.OnWallBuilt.RemoveListener(OnWallBuilt);
         GroundTile.OnHouseBuilt.RemoveListener(OnHouseBuilt);
         GroundTile.OnHouseDestroyed.RemoveListener(OnHouseDestroyed);
+        GroundTile.OnDelayedHouseBuilt.RemoveListener(TriggerNextTurn);
         GroundTile.OnFactoryBuilt.RemoveListener(OnFactoryBuilt);
         GroundTile.OnFactoryDestroyed.RemoveListener(OnFactoryDestroyed);
+        GroundTile.OnDelayedFactoryBuilt.RemoveListener(TriggerNextTurn);
         GroundTile.OnHelicopterActivated.RemoveListener(OnHelicopterUsed);
     }
 
     private void OnWallBuilt() {
-        corruptionHandler.CheckWallDone();
-        remainingWallCount--;
-        if (remainingWallCount <= 0) {
-            TriggerNextTurn();
+        if (corruptionHandler.CheckWallDone()) {
+            // TODO move
+            gameEndUi.text = "SUCCESS";
+        } else {
+            remainingWallCount--;
+            remainingWallUi.text = string.Format("Buildable walls: {0}", remainingWallCount);
+            if (remainingWallCount <= 0) {
+                TriggerNextTurn();
+            }
         }
     }
 
     private void OnHelicopterUsed() {
         corruptionHandler.AddDelay();
-        Debug.Log("Helicopter brrr");
         TriggerNextTurn();
     }
 
@@ -55,9 +69,10 @@ public class TurnManager : MonoBehaviour
         corruptionHandler.Apply();
         remainingWallCount = GetPlacableWallCount();
         if (remainingWallCount == 0) {
-            Debug.Log("GAME OVER");
+            gameEndUi.text = "GAME OVER";
             // TODO trigger game over state
         } else {
+            remainingWallUi.text = string.Format("Buildable walls: {0}", remainingWallCount);
             Debug.Log(string.Format("Builadbe walls this turn: {0}", remainingWallCount));
             OnCorruptionTurnEnded.Invoke();
         }

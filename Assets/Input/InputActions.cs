@@ -83,6 +83,15 @@ public partial class @InputActions : IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Restart"",
+                    ""type"": ""Button"",
+                    ""id"": ""68078e18-eeda-4f6b-b1d7-6c38448e6186"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -94,6 +103,17 @@ public partial class @InputActions : IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""groups"": """",
                     ""action"": ""Quit"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""d34a9bd8-8161-4dd5-b809-dc3c4f95b577"",
+                    ""path"": ""<Keyboard>/r"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Restart"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -109,6 +129,7 @@ public partial class @InputActions : IInputActionCollection2, IDisposable
         // Global
         m_Global = asset.FindActionMap("Global", throwIfNotFound: true);
         m_Global_Quit = m_Global.FindAction("Quit", throwIfNotFound: true);
+        m_Global_Restart = m_Global.FindAction("Restart", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -210,11 +231,13 @@ public partial class @InputActions : IInputActionCollection2, IDisposable
     private readonly InputActionMap m_Global;
     private IGlobalActions m_GlobalActionsCallbackInterface;
     private readonly InputAction m_Global_Quit;
+    private readonly InputAction m_Global_Restart;
     public struct GlobalActions
     {
         private @InputActions m_Wrapper;
         public GlobalActions(@InputActions wrapper) { m_Wrapper = wrapper; }
         public InputAction @Quit => m_Wrapper.m_Global_Quit;
+        public InputAction @Restart => m_Wrapper.m_Global_Restart;
         public InputActionMap Get() { return m_Wrapper.m_Global; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -227,6 +250,9 @@ public partial class @InputActions : IInputActionCollection2, IDisposable
                 @Quit.started -= m_Wrapper.m_GlobalActionsCallbackInterface.OnQuit;
                 @Quit.performed -= m_Wrapper.m_GlobalActionsCallbackInterface.OnQuit;
                 @Quit.canceled -= m_Wrapper.m_GlobalActionsCallbackInterface.OnQuit;
+                @Restart.started -= m_Wrapper.m_GlobalActionsCallbackInterface.OnRestart;
+                @Restart.performed -= m_Wrapper.m_GlobalActionsCallbackInterface.OnRestart;
+                @Restart.canceled -= m_Wrapper.m_GlobalActionsCallbackInterface.OnRestart;
             }
             m_Wrapper.m_GlobalActionsCallbackInterface = instance;
             if (instance != null)
@@ -234,6 +260,9 @@ public partial class @InputActions : IInputActionCollection2, IDisposable
                 @Quit.started += instance.OnQuit;
                 @Quit.performed += instance.OnQuit;
                 @Quit.canceled += instance.OnQuit;
+                @Restart.started += instance.OnRestart;
+                @Restart.performed += instance.OnRestart;
+                @Restart.canceled += instance.OnRestart;
             }
         }
     }
@@ -246,5 +275,6 @@ public partial class @InputActions : IInputActionCollection2, IDisposable
     public interface IGlobalActions
     {
         void OnQuit(InputAction.CallbackContext context);
+        void OnRestart(InputAction.CallbackContext context);
     }
 }

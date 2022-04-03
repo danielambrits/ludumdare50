@@ -10,6 +10,8 @@ public class GroundTile : MonoBehaviour, IPointerInteractable
         House,
         Factory,
         Helipad,
+        HouseUnderConstruction,
+        FactoryUnderConstruction,
     }
 
     [SerializeField]
@@ -25,6 +27,9 @@ public class GroundTile : MonoBehaviour, IPointerInteractable
     private OvertextHandler uiHandler;
 
     private int cooldown;
+    
+    static private GroundTile tileToEvacuate = null;
+    static private bool evacuationAvailable = true;
 
     public bool isCorrupted;
     public Type type;
@@ -32,8 +37,10 @@ public class GroundTile : MonoBehaviour, IPointerInteractable
     public static UnityEvent OnWallBuilt = new UnityEvent();
     public static UnityEvent OnHouseBuilt = new UnityEvent();
     public static UnityEvent OnHouseDestroyed = new UnityEvent();
+    public static UnityEvent OnDelayedHouseBuilt = new UnityEvent();
     public static UnityEvent OnFactoryBuilt = new UnityEvent();
     public static UnityEvent OnFactoryDestroyed = new UnityEvent();
+    public static UnityEvent OnDelayedFactoryBuilt = new UnityEvent();
 
     public static UnityEvent OnHelicopterActivated = new UnityEvent();
 
@@ -62,16 +69,40 @@ public class GroundTile : MonoBehaviour, IPointerInteractable
     }
 
     public void OnPointerDown() {
-        switch (type) {
-            case Type.Default:
-                BuildWall();
-                break;
-            case Type.Helipad:
-                ActivateHelicopter();
-                break;
-            default:
-                // NOP
-                break;
+        if (tileToEvacuate != null) {
+            if (type == Type.Default) {
+                switch (tileToEvacuate.type) {
+                    case Type.House:
+                        BuildDelayedHouse();
+                        break;
+                    case Type.Factory:
+                        BuildDelayedFactory();
+                        break;
+                    default:
+                        // NOP
+                        break;
+                }
+                tileToEvacuate.Corrupt();
+                tileToEvacuate = null;
+            }
+        } else {
+            switch (type) {
+                case Type.Default:
+                    BuildWall();
+                    break;
+                case Type.Helipad:
+                    ActivateHelicopter();
+                    break;
+                case Type.House:    // fall-through
+                case Type.Factory:
+                    if (evacuationAvailable) {
+                        tileToEvacuate = this;
+                    }
+                    break;
+                default:
+                    // NOP
+                    break;
+            }
         }
     }
 
@@ -92,6 +123,9 @@ public class GroundTile : MonoBehaviour, IPointerInteractable
         }
         defaultColor = Color.black;
         meshRenderer.material.color = defaultColor;
+        if (uiHandler) {
+            uiHandler.SetValue(0);
+        }
     }
 
     private void BuildWall() {
@@ -108,11 +142,31 @@ public class GroundTile : MonoBehaviour, IPointerInteractable
         OnHouseBuilt.Invoke();
     }
 
+    private void BuildDelayedHouse() {
+        type = Type.HouseUnderConstruction;
+        cooldown = evacuationCooldown;
+        evacuationAvailable = false;
+        
+        uiHandler = Instantiate(cooldownUiPrefab, transform.position, Quaternion.identity).GetComponent<OvertextHandler>();
+        uiHandler.SetValue(cooldown);
+        OnDelayedHouseBuilt.Invoke();
+    }
+
     public void BuildFactory() {
         type = Type.Factory;
         defaultColor = Color.yellow;
         meshRenderer.material.color = defaultColor;
         OnFactoryBuilt.Invoke();
+    }
+
+    private void BuildDelayedFactory() {
+        type = Type.FactoryUnderConstruction;
+        cooldown = evacuationCooldown;
+        evacuationAvailable = false;
+
+        uiHandler = Instantiate(cooldownUiPrefab, transform.position, Quaternion.identity).GetComponent<OvertextHandler>();
+        uiHandler.SetValue(cooldown);
+        OnDelayedFactoryBuilt.Invoke();
     }
 
     public void BuildHelipad() {
@@ -124,7 +178,7 @@ public class GroundTile : MonoBehaviour, IPointerInteractable
     }
 
     private void ActivateHelicopter() {
-        if (cooldown > 0) {
+        if ((type != Type.Helipad) || (cooldown > 0)) {
             return;
         }
         cooldown = helicopterCooldown;
@@ -136,6 +190,19 @@ public class GroundTile : MonoBehaviour, IPointerInteractable
         if (cooldown > 0) {
             cooldown--;
             uiHandler.SetValue(cooldown);
+
+            if (cooldown == 0) {
+                switch (type) {
+                    case Type.HouseUnderConstruction:
+                        BuildHouse();
+                        evacuationAvailable = true;
+                        break;
+                    case Type.FactoryUnderConstruction:
+                        BuildFactory();
+                        evacuationAvailable = true;
+                        break;
+                }
+            }
         }
     }
 

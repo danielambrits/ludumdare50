@@ -104,7 +104,6 @@ public class CorruptionHandler : MonoBehaviour
         }
 
         // Corners were not reached -> the wall is done
-        Debug.Log("WIN!");
         inspectablePositions.Clear();
         return true;     
     }
