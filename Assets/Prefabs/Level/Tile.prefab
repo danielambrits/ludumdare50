@@ -49,7 +49,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   type: 0
   isCorrupted: 0
-  selectionColor: {r: 0.5849056, g: 0.18485224, b: 0.1927686, a: 1}
+  selectionColor: {r: 0.2830189, g: 0.2830189, b: 0.2830189, a: 1}
   wallPrefab: {fileID: 5224560716216356796, guid: de2ff039165033b46a89ce1a89277b3a, type: 3}
   helipadPrefab: {fileID: 5702811668853313034, guid: db868ca260e3c3840a04b897fd56d22f, type: 3}
   housePrefab: {fileID: 6814462683822493542, guid: 4a2195a7541a5304a882942abdd9c7f5, type: 3}

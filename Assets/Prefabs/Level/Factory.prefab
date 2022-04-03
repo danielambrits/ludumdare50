@@ -10,7 +10,7 @@ PrefabInstance:
     - target: {fileID: 6814462683822493537, guid: 4a2195a7541a5304a882942abdd9c7f5, type: 3}
       propertyPath: m_Mesh
       value: 
-      objectReference: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
+      objectReference: {fileID: 5542413560607618145, guid: accd37f7ed218bc4db1a0f964be001ae, type: 3}
     - target: {fileID: 6814462683822493538, guid: 4a2195a7541a5304a882942abdd9c7f5, type: 3}
       propertyPath: m_RootOrder
       value: 0
@@ -94,21 +94,3 @@ PrefabInstance:
     m_RemovedComponents:
     - {fileID: 6814462683822493543, guid: 4a2195a7541a5304a882942abdd9c7f5, type: 3}
   m_SourcePrefab: {fileID: 100100000, guid: 4a2195a7541a5304a882942abdd9c7f5, type: 3}
---- !u!1 &6641907660522964024 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 6814462683822493542, guid: 4a2195a7541a5304a882942abdd9c7f5, type: 3}
-  m_PrefabInstance: {fileID: 197347388083391326}
-  m_PrefabAsset: {fileID: 0}
---- !u!135 &7160507962088551688
-SphereCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6641907660522964024}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Radius: 0.5
-  m_Center: {x: 0, y: 0, z: 0}

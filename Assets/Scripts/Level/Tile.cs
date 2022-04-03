@@ -166,7 +166,7 @@ public class Tile : MonoBehaviour, IPointerInteractable
 
     public void BuildHouse() {
         type = Type.House;
-        building = Instantiate(housePrefab, transform.position + new Vector3(0f, 0.5f, 0f), Quaternion.identity);
+        building = Instantiate(housePrefab, transform.position, Quaternion.identity);
         building.transform.SetParent(transform);
         building.GetComponent<WallResourceBuilding>().SetBaseTile(this);
         OnHouseBuilt.Invoke();
@@ -194,7 +194,7 @@ public class Tile : MonoBehaviour, IPointerInteractable
 
     public void BuildHelipad() {
         type = Type.Helipad;
-        building = Instantiate(helipadPrefab, transform.position + new Vector3(0f, 0.5f, 0f), Quaternion.identity);
+        building = Instantiate(helipadPrefab, transform.position, Quaternion.identity);
         building.transform.SetParent(transform);
     }
 

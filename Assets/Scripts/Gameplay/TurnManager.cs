@@ -12,7 +12,9 @@ public class TurnManager : MonoBehaviour
     [SerializeField]
     private TextMeshProUGUI remainingWallUi;
     [SerializeField]
-    private TextMeshProUGUI gameEndUi;
+    private GameObject gameEndPanelUi;
+    [SerializeField]
+    private TextMeshProUGUI gameEndTextUi;
 
     private int houseCount;
     private int factoryCount;
@@ -57,16 +59,14 @@ public class TurnManager : MonoBehaviour
         CorruptionHandler.WallState wallState = corruptionHandler.CheckWallDone();
         switch (wallState) {
             case CorruptionHandler.WallState.Done:
-                // TODO trigger proper endgame
-                gameEndUi.text = "SUCCESS";
-        playerInput.enabled = false;
+                ShowUiOnVictory();
+                playerInput.enabled = false;
                 OnGameWon.Invoke();
                 break;
             case CorruptionHandler.WallState.Unsolvable:
-                gameEndUi.text = "GAME OVER";
-        playerInput.enabled = false;
+                playerInput.enabled = false;
+                ShowUiOnFailure();
                 OnGameLost.Invoke();
-                // TODO trigger game over state
                 break;
             default:
                 remainingWallCount--;
@@ -89,9 +89,8 @@ public class TurnManager : MonoBehaviour
         corruptionHandler.Apply();
         remainingWallCount = GetPlacableWallCount();
         if (remainingWallCount == 0) {
-            gameEndUi.text = "GAME OVER";
-            OnGameLost.Invoke();
-            // TODO trigger game over state
+            ShowUiOnFailure();
+            playerInput.enabled = false;
         } else {
             remainingWallUi.text = string.Format("Buildable walls: {0}", remainingWallCount);
             Debug.Log(string.Format("Builadbe walls this turn: {0}", remainingWallCount));
@@ -122,6 +121,16 @@ public class TurnManager : MonoBehaviour
 
     private int GetPlacableWallCount() {
         return Mathf.Min(houseCount, factoryCount);
+    }
+
+    private void ShowUiOnVictory() {
+        gameEndPanelUi.SetActive(true);
+        gameEndTextUi.text = "SUCCESS";
+    }
+
+    private void ShowUiOnFailure() {
+        gameEndPanelUi.SetActive(true);
+        gameEndTextUi.text = "GAME OVER";
     }
 
 }
