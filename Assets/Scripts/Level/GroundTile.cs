@@ -50,6 +50,9 @@ public class GroundTile : MonoBehaviour, IPointerInteractable
         type = Type.Default;
         isCorrupted = false;
         uiHandler = null;
+
+        tileToEvacuate = null;
+        evacuationAvailable = true;
     }
 
     void OnEnable() {
@@ -82,7 +85,7 @@ public class GroundTile : MonoBehaviour, IPointerInteractable
                         // NOP
                         break;
                 }
-                tileToEvacuate.Corrupt();
+                tileToEvacuate.Evacuate();
                 tileToEvacuate = null;
             }
         } else {
@@ -125,6 +128,20 @@ public class GroundTile : MonoBehaviour, IPointerInteractable
         meshRenderer.material.color = defaultColor;
         if (uiHandler) {
             uiHandler.SetValue(0);
+        }
+    }
+
+    public void Evacuate() {
+        switch (type) {
+            case Type.House: // fall-through
+            case Type.Factory:
+                type = Type.Default;
+                defaultColor = Color.blue; // TODO
+                meshRenderer.material.color = defaultColor;
+                break;
+            default:
+                // NOP
+                break;
         }
     }
 

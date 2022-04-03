@@ -18,6 +18,10 @@ public class TurnManager : MonoBehaviour
     private int remainingWallCount;
 
     public static UnityEvent OnCorruptionTurnEnded = new UnityEvent();
+    public static UnityEvent OnPlayerTurnEnded = new UnityEvent();
+
+    public static UnityEvent OnGameWon = new UnityEvent();
+    public static UnityEvent OnGameLost = new UnityEvent();
 
     void Awake() {
         houseCount = 0;
@@ -48,15 +52,25 @@ public class TurnManager : MonoBehaviour
     }
 
     private void OnWallBuilt() {
-        if (corruptionHandler.CheckWallDone()) {
-            // TODO move
-            gameEndUi.text = "SUCCESS";
-        } else {
-            remainingWallCount--;
-            remainingWallUi.text = string.Format("Buildable walls: {0}", remainingWallCount);
-            if (remainingWallCount <= 0) {
-                TriggerNextTurn();
-            }
+        CorruptionHandler.WallState wallState = corruptionHandler.CheckWallDone();
+        switch (wallState) {
+            case CorruptionHandler.WallState.Done:
+                // TODO trigger proper endgame
+                gameEndUi.text = "SUCCESS";
+                OnGameWon.Invoke();
+                break;
+            case CorruptionHandler.WallState.Unsolvable:
+                gameEndUi.text = "GAME OVER";
+                OnGameLost.Invoke();
+                // TODO trigger game over state
+                break;
+            default:
+                remainingWallCount--;
+                remainingWallUi.text = string.Format("Buildable walls: {0}", remainingWallCount);
+                if (remainingWallCount <= 0) {
+                    TriggerNextTurn();
+                }
+                break;
         }
     }
 
@@ -66,10 +80,12 @@ public class TurnManager : MonoBehaviour
     }
 
     private void TriggerNextTurn() {
+        OnPlayerTurnEnded.Invoke();
         corruptionHandler.Apply();
         remainingWallCount = GetPlacableWallCount();
         if (remainingWallCount == 0) {
             gameEndUi.text = "GAME OVER";
+            OnGameLost.Invoke();
             // TODO trigger game over state
         } else {
             remainingWallUi.text = string.Format("Buildable walls: {0}", remainingWallCount);

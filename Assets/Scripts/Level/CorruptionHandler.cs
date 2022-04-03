@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Events;
 using System.Collections.Generic;
 
 public class CorruptionHandler : MonoBehaviour
@@ -16,8 +17,18 @@ public class CorruptionHandler : MonoBehaviour
     [SerializeField]
     private OvertextHandler uiHandler;
 
+    public enum WallState {
+        Done,
+        InProgress,
+        Unsolvable,
+        AlgorithmError
+    }
+
+    public static UnityEvent OnSpread = new UnityEvent();
+
     private int spreadDelayCounter;
     private int iterationCounter;
+    private int corruptedCellCount;
 
     private Stack<Vector2Int> inspectablePositions = new Stack<Vector2Int>();
     private List<Vector2Int> gridCorners = new List<Vector2Int>();
@@ -26,10 +37,15 @@ public class CorruptionHandler : MonoBehaviour
         iterationCounter = 0;
         spreadDelayCounter = spreadPeriod;
 
+        corruptedCellCount = 0;
+
         gridCorners.Add(new Vector2Int(grid.size.x/2, grid.size.y/2));
         gridCorners.Add(new Vector2Int(-grid.size.x/2, grid.size.y/2));
         gridCorners.Add(new Vector2Int(grid.size.x/2, -grid.size.y/2));
         gridCorners.Add(new Vector2Int(-grid.size.x/2, -grid.size.y/2));
+
+        Apply();
+        Apply();
     }
 
     public void Apply() {
@@ -42,6 +58,7 @@ public class CorruptionHandler : MonoBehaviour
 
         spreadDelayCounter = spreadPeriod;
         iterationCounter++;
+        corruptedCellCount = 0;
 
         for (int x = startingPosition.x - iterationCounter; x <= startingPosition.x + iterationCounter; x++) {
             for (int y = startingPosition.y - iterationCounter; y <= startingPosition.y + iterationCounter; y++) {
@@ -49,6 +66,7 @@ public class CorruptionHandler : MonoBehaviour
                     Vector2Int gridPosition = new Vector2Int(x,y);
                     GridWithData.CellData cellData;
                     if (grid.GetCellData(gridPosition, out cellData)) {
+                        corruptedCellCount++;
                         if (!cellData.tile.isCorrupted) {
                             cellData.tile.Corrupt();
                         }
@@ -56,25 +74,28 @@ public class CorruptionHandler : MonoBehaviour
                 }
             }
         }
+        OnSpread.Invoke();
     }
 
     public void AddDelay() {
         spreadDelayCounter += spreadDelayLength;
     }
 
-    public bool CheckWallDone() {
+    public WallState CheckWallDone() {
         // Implements a Flood Fill algorithm from the starting position.
         grid.ClearAllInspection();
 
         inspectablePositions.Clear();
         inspectablePositions.Push(startingPosition);
 
+        int foundCorruptedCells = 0;
+
         int maxIterations = 1000; // just in case...
 
         while (inspectablePositions.Count > 0) {
             if (maxIterations-- < 0) {
                 Debug.LogWarning("Flood Fill took too may iterations.");
-                return false;
+                return WallState.AlgorithmError;
             }
 
             Vector2Int gridPosition = inspectablePositions.Pop();
@@ -83,7 +104,7 @@ public class CorruptionHandler : MonoBehaviour
             foreach (var corner in gridCorners) {
                 if (corner == gridPosition) {
                     inspectablePositions.Clear();
-                    return false;
+                    return WallState.InProgress;
                 }
             }
 
@@ -91,6 +112,9 @@ public class CorruptionHandler : MonoBehaviour
             if (grid.GetCellData(gridPosition, out cellData)) {
                 if (cellData.isInspected) {
                     continue;
+                }
+                if (cellData.tile.isCorrupted) {
+                    foundCorruptedCells++;
                 }
                 cellData.isInspected = true;
                 grid.SetCellData(gridPosition, cellData);
@@ -105,7 +129,12 @@ public class CorruptionHandler : MonoBehaviour
 
         // Corners were not reached -> the wall is done
         inspectablePositions.Clear();
-        return true;     
+
+        if (foundCorruptedCells != corruptedCellCount) {
+            // if not all the corrupted cells are found, there must be some outside the wall
+            return WallState.Unsolvable;
+        }
+        return WallState.Done;     
     }
 
 }
