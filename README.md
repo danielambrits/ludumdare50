@@ -1,4 +1,4 @@
-# Ludum Dare 50 sumbission
+# Ludum Dare 50 submission
 
 Made with Unity 2021.2.12f1
 

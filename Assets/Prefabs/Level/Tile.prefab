@@ -50,6 +50,7 @@ MonoBehaviour:
   type: 0
   isCorrupted: 0
   selectionColor: {r: 0.2830189, g: 0.2830189, b: 0.2830189, a: 1}
+  dangerZoneColor: {r: 0.8018868, g: 0.6038069, b: 0.20803669, a: 1}
   wallPrefab: {fileID: 5224560716216356796, guid: de2ff039165033b46a89ce1a89277b3a, type: 3}
   helipadPrefab: {fileID: 5702811668853313034, guid: db868ca260e3c3840a04b897fd56d22f, type: 3}
   housePrefab: {fileID: 6814462683822493542, guid: 4a2195a7541a5304a882942abdd9c7f5, type: 3}
@@ -82,7 +83,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 11df1df3edc57a8439eb9ba3287c25cd, type: 2}
+  - {fileID: 2100000, guid: b221961332342d344873c67b013309b0, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0

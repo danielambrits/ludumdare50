@@ -19,6 +19,8 @@ public class Tile : MonoBehaviour, IPointerInteractable
 
     [SerializeField]
     private Color selectionColor;
+    [SerializeField]
+    private Color dangerZoneColor;
 
     [Header("Building meshes")]
     [SerializeField]
@@ -64,11 +66,13 @@ public class Tile : MonoBehaviour, IPointerInteractable
     }
 
     public void OnPointerEnter() {
-        meshRenderer.material.color = selectionColor;
+        // meshRenderer.material.color = selectionColor;
+        meshRenderer.material.SetInt("_Selected", 1);
     }
 
     public void OnPointerExit() {
-        meshRenderer.material.color = defaultColor;
+        // meshRenderer.material.color = defaultColor;
+        meshRenderer.material.SetInt("_Selected", 0);
     }
 
     public void OnPointerDown() {
@@ -95,7 +99,9 @@ public class Tile : MonoBehaviour, IPointerInteractable
         } else {
             switch (type) {
                 case Type.Default:
-                    BuildWall();
+                    if (!isCorrupted) {
+                        BuildWall();
+                    }
                     break;
                 case Type.House:
                     if (evacuationAvailable) {
@@ -134,6 +140,7 @@ public class Tile : MonoBehaviour, IPointerInteractable
         }
         defaultColor = Color.black;
         meshRenderer.material.color = defaultColor;
+        meshRenderer.material.SetInt("_DiagonalOn", 0);
         if (uiHandler) {
             uiHandler.SetValue(0);
         }
@@ -155,6 +162,11 @@ public class Tile : MonoBehaviour, IPointerInteractable
                 // NOP
                 break;
         }
+    }
+
+    public void TagAsDangerZone() {
+        // defaultColor = dangerZoneColor;
+        meshRenderer.material.SetInt("_DiagonalOn", 1);
     }
 
     private void BuildWall() {

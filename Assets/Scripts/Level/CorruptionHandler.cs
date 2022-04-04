@@ -62,8 +62,8 @@ public class CorruptionHandler : MonoBehaviour
         uiHandler.SetValue(spreadDelayCounter);
         Debug.Log("Spread! iteration " + iterationCounter);
 
-        for (int x = startingPosition.x - iterationCounter; x <= startingPosition.x + iterationCounter; x++) {
-            for (int y = startingPosition.y - iterationCounter; y <= startingPosition.y + iterationCounter; y++) {
+        for (int x = startingPosition.x - iterationCounter - 1; x <= startingPosition.x + iterationCounter + 1; x++) {
+            for (int y = startingPosition.y - iterationCounter - 1; y <= startingPosition.y + iterationCounter + 1; y++) {
                 if ((x - startingPosition.x) * (x - startingPosition.x) + (y - startingPosition.y) * (y - startingPosition.y) < iterationCounter * iterationCounter) {
                     Vector2Int gridPosition = new Vector2Int(x,y);
                     GridWithData.CellData cellData;
@@ -71,6 +71,14 @@ public class CorruptionHandler : MonoBehaviour
                         corruptedCellCount++;
                         if (!cellData.tile.isCorrupted) {
                             cellData.tile.Corrupt();
+                        }
+                    }
+                } else if ((x - startingPosition.x) * (x - startingPosition.x) + (y - startingPosition.y) * (y - startingPosition.y) < (iterationCounter + 1) * (iterationCounter + 1)) {
+                    Vector2Int gridPosition = new Vector2Int(x,y);
+                    GridWithData.CellData cellData;
+                    if (grid.GetCellData(gridPosition, out cellData)) {
+                        if (!cellData.tile.isCorrupted) {
+                            cellData.tile.TagAsDangerZone();
                         }
                     }
                 }
