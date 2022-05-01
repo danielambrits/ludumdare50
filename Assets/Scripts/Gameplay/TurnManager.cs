@@ -12,6 +12,8 @@ public class TurnManager : MonoBehaviour
     [SerializeField]
     private TextMeshProUGUI remainingWallUi;
     [SerializeField]
+    private TextMeshProUGUI evacuationUi;
+    [SerializeField]
     private GameObject gameEndPanelUi;
     [SerializeField]
     private TextMeshProUGUI gameEndTextUi;
@@ -39,10 +41,10 @@ public class TurnManager : MonoBehaviour
         Tile.OnWallBuilt.AddListener(OnWallBuilt);
         Tile.OnHouseBuilt.AddListener(OnHouseBuilt);
         Tile.OnHouseDestroyed.AddListener(OnHouseDestroyed);
-        Tile.OnDelayedHouseBuilt.AddListener(TriggerNextTurn);
+        Tile.OnDelayedHouseBuilt.AddListener(OnEvacuationStarted);
         Tile.OnFactoryBuilt.AddListener(OnFactoryBuilt);
         Tile.OnFactoryDestroyed.AddListener(OnFactoryDestroyed);
-        Tile.OnDelayedFactoryBuilt.AddListener(TriggerNextTurn);
+        Tile.OnDelayedFactoryBuilt.AddListener(OnEvacuationStarted);
         Helipad.OnHelicopterActivated.AddListener(OnHelicopterUsed);
     }
 
@@ -50,10 +52,10 @@ public class TurnManager : MonoBehaviour
         Tile.OnWallBuilt.RemoveListener(OnWallBuilt);
         Tile.OnHouseBuilt.RemoveListener(OnHouseBuilt);
         Tile.OnHouseDestroyed.RemoveListener(OnHouseDestroyed);
-        Tile.OnDelayedHouseBuilt.RemoveListener(TriggerNextTurn);
+        Tile.OnDelayedHouseBuilt.RemoveListener(OnEvacuationStarted);
         Tile.OnFactoryBuilt.RemoveListener(OnFactoryBuilt);
         Tile.OnFactoryDestroyed.RemoveListener(OnFactoryDestroyed);
-        Tile.OnDelayedFactoryBuilt.RemoveListener(TriggerNextTurn);
+        Tile.OnDelayedFactoryBuilt.RemoveListener(OnEvacuationStarted);
         Helipad.OnHelicopterActivated.RemoveListener(OnHelicopterUsed);
     }
 
@@ -92,6 +94,7 @@ public class TurnManager : MonoBehaviour
             ShowUiOnFailure("Radiation reached the edge of the area.");
             playerInput.enabled = false;
             OnGameLost.Invoke();
+            return;
         }
         remainingWallCount = GetPlacableWallCount();
         if (remainingWallCount == 0) {
@@ -108,10 +111,12 @@ public class TurnManager : MonoBehaviour
 
     private void OnHouseBuilt() {
         houseCount++;
+        evacuationUi.text = "Evacuation AVAILABLE";
     }
     
     private void OnFactoryBuilt() {
         factoryCount++;
+        evacuationUi.text = "Evacuation AVAILABLE";
     }
 
     private void OnHouseDestroyed() {
@@ -124,6 +129,11 @@ public class TurnManager : MonoBehaviour
         if (factoryCount > 0) {
             factoryCount--;
         }
+    }
+
+    private void OnEvacuationStarted() {
+        evacuationUi.text = "Evacuation in progress...";
+        TriggerNextTurn();
     }
 
     private int GetPlacableWallCount() {

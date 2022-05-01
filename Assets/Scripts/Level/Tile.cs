@@ -32,6 +32,12 @@ public class Tile : MonoBehaviour, IPointerInteractable
     [SerializeField]
     private GameObject factoryPrefab;
 
+    [Header("Building placeholders")]
+    [SerializeField]
+    private GameObject housePlaceholder;
+    [SerializeField]
+    private GameObject factoryPlaceholder;
+
     private MeshRenderer meshRenderer;
     private Color defaultColor;
 
@@ -67,10 +73,38 @@ public class Tile : MonoBehaviour, IPointerInteractable
 
     public void OnPointerEnter() {
         meshRenderer.material.SetInt("_Selected", 1);
+        if (tileToEvacuate != null) {
+            if (type == Type.Default && !isCorrupted) {
+                Color materialColor;
+                switch (tileToEvacuate.type) {
+                    case Type.House:
+                        housePlaceholder.SetActive(true);
+                        // TODO why do I need to do this???
+                        materialColor = housePlaceholder.GetComponent<MeshRenderer>().material.color;
+                        materialColor.a = 0.5f;
+                        housePlaceholder.GetComponent<MeshRenderer>().material.color = materialColor;
+                        break;
+                    case Type.Factory:
+                        factoryPlaceholder.SetActive(true);
+                        // TODO why do I need to do this???
+                        materialColor = factoryPlaceholder.GetComponent<MeshRenderer>().material.color;
+                        materialColor.a = 0.5f;
+                        factoryPlaceholder.GetComponent<MeshRenderer>().material.color = materialColor;
+                        break;
+                    default:
+                        // NOP
+                        break;
+                }
+            }
+        }
     }
 
     public void OnPointerExit() {
         meshRenderer.material.SetInt("_Selected", 0);
+        if (tileToEvacuate != null) {
+            housePlaceholder.SetActive(false);
+            factoryPlaceholder.SetActive(false);
+        }
     }
 
     public void OnPointerDown() {
@@ -178,6 +212,7 @@ public class Tile : MonoBehaviour, IPointerInteractable
         building = Instantiate(housePrefab, transform.position, Quaternion.identity);
         building.transform.SetParent(transform);
         building.GetComponent<WallResourceBuilding>().SetBaseTile(this);
+        housePlaceholder.SetActive(false);
         OnHouseBuilt.Invoke();
     }
 
@@ -192,6 +227,7 @@ public class Tile : MonoBehaviour, IPointerInteractable
         building = Instantiate(factoryPrefab, transform.position, Quaternion.identity);
         building.transform.SetParent(transform);
         building.GetComponent<WallResourceBuilding>().SetBaseTile(this);
+        factoryPlaceholder.SetActive(false);
         OnFactoryBuilt.Invoke();
     }
 
@@ -218,10 +254,12 @@ public class Tile : MonoBehaviour, IPointerInteractable
         switch (type) {
             case Type.HouseUnderConstruction:
                 type = Type.House;
+                housePlaceholder.SetActive(false);
                 OnHouseBuilt.Invoke();
                 break;
             case Type.FactoryUnderConstruction:
                 type = Type.Factory;
+                factoryPlaceholder.SetActive(false);
                 OnFactoryBuilt.Invoke();
                 break;
             default:
