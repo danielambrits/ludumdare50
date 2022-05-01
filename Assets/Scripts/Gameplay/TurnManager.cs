@@ -15,6 +15,8 @@ public class TurnManager : MonoBehaviour
     private GameObject gameEndPanelUi;
     [SerializeField]
     private TextMeshProUGUI gameEndTextUi;
+    [SerializeField]
+    private TextMeshProUGUI gameFailureReasonTextUi;
 
     private int houseCount;
     private int factoryCount;
@@ -65,7 +67,7 @@ public class TurnManager : MonoBehaviour
                 break;
             case CorruptionHandler.WallState.Unsolvable:
                 playerInput.enabled = false;
-                ShowUiOnFailure();
+                ShowUiOnFailure("Radiation can not be surrounded anymore.");
                 OnGameLost.Invoke();
                 break;
             default:
@@ -87,13 +89,13 @@ public class TurnManager : MonoBehaviour
         playerInput.enabled = false;
         OnPlayerTurnEnded.Invoke();
         if (corruptionHandler.Apply() == CorruptionHandler.Result.EdgeReached) {
-            ShowUiOnFailure();
+            ShowUiOnFailure("Radiation reached the edge of the area.");
             playerInput.enabled = false;
             OnGameLost.Invoke();
         }
         remainingWallCount = GetPlacableWallCount();
         if (remainingWallCount == 0) {
-            ShowUiOnFailure();
+            ShowUiOnFailure("All resources for walls are destroyed.");
             playerInput.enabled = false;
             OnGameLost.Invoke();
         } else {
@@ -131,11 +133,13 @@ public class TurnManager : MonoBehaviour
     private void ShowUiOnVictory() {
         gameEndPanelUi.SetActive(true);
         gameEndTextUi.text = "SUCCESS";
+        gameFailureReasonTextUi.text = "";
     }
 
-    private void ShowUiOnFailure() {
+    private void ShowUiOnFailure(string reason) {
         gameEndPanelUi.SetActive(true);
         gameEndTextUi.text = "GAME OVER";
+        gameFailureReasonTextUi.text = reason;
     }
 
 }
