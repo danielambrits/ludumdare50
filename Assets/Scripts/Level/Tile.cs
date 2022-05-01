@@ -66,12 +66,10 @@ public class Tile : MonoBehaviour, IPointerInteractable
     }
 
     public void OnPointerEnter() {
-        // meshRenderer.material.color = selectionColor;
         meshRenderer.material.SetInt("_Selected", 1);
     }
 
     public void OnPointerExit() {
-        // meshRenderer.material.color = defaultColor;
         meshRenderer.material.SetInt("_Selected", 0);
     }
 
@@ -165,7 +163,6 @@ public class Tile : MonoBehaviour, IPointerInteractable
     }
 
     public void TagAsDangerZone() {
-        // defaultColor = dangerZoneColor;
         meshRenderer.material.SetInt("_DiagonalOn", 1);
     }
 

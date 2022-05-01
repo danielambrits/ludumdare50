@@ -9,6 +9,8 @@ public class CorruptionHandler : MonoBehaviour
     [SerializeField]
     private Vector2Int startingPosition;
     [SerializeField]
+    private int initialSpreadCount;
+    [SerializeField]
     private int spreadPeriod;
     [SerializeField]
     private int spreadDelayLength;
@@ -24,6 +26,12 @@ public class CorruptionHandler : MonoBehaviour
         AlgorithmError
     }
 
+    public enum Result {
+        Waiting,
+        Success,
+        EdgeReached
+    }
+
     public static UnityEvent OnSpread = new UnityEvent();
 
     private int spreadDelayCounter;
@@ -32,6 +40,9 @@ public class CorruptionHandler : MonoBehaviour
 
     private Stack<Vector2Int> inspectablePositions = new Stack<Vector2Int>();
     private List<Vector2Int> gridCorners = new List<Vector2Int>();
+    
+    private List<Vector2Int> currentDangerZonePositions = new List<Vector2Int>();
+    private List<Vector2Int> nextDangerZonePositions = new List<Vector2Int>();
 
     void Start() {
         iterationCounter = 0;
@@ -44,47 +55,85 @@ public class CorruptionHandler : MonoBehaviour
         gridCorners.Add(new Vector2Int(grid.size.x/2, -grid.size.y/2));
         gridCorners.Add(new Vector2Int(-grid.size.x/2, -grid.size.y/2));
 
-        Apply();
-        Apply();
+        currentDangerZonePositions.Add(new Vector2Int(0, 0));
+
+        for (int i = 0; i < initialSpreadCount; i++) {
+            Spread();
+        }
     }
 
-    public void Apply() {
+    public Result Apply() {
         spreadDelayCounter--;
         uiHandler.SetValue(spreadDelayCounter);
         if (spreadDelayCounter > 0) {
             Debug.Log("Nuclear spread in " + spreadDelayCounter);
-            return;
+            return Result.Waiting;
         }
 
+        return Spread();
+    }
+
+    private Result Spread() {
         spreadDelayCounter = spreadPeriod;
         iterationCounter++;
-        corruptedCellCount = 0;
         uiHandler.SetValue(spreadDelayCounter);
         Debug.Log("Spread! iteration " + iterationCounter);
+        bool edgeReached = false;
 
-        for (int x = startingPosition.x - iterationCounter - 1; x <= startingPosition.x + iterationCounter + 1; x++) {
-            for (int y = startingPosition.y - iterationCounter - 1; y <= startingPosition.y + iterationCounter + 1; y++) {
-                if ((x - startingPosition.x) * (x - startingPosition.x) + (y - startingPosition.y) * (y - startingPosition.y) < iterationCounter * iterationCounter) {
-                    Vector2Int gridPosition = new Vector2Int(x,y);
-                    GridWithData.CellData cellData;
-                    if (grid.GetCellData(gridPosition, out cellData)) {
-                        corruptedCellCount++;
-                        if (!cellData.tile.isCorrupted) {
-                            cellData.tile.Corrupt();
-                        }
-                    }
-                } else if ((x - startingPosition.x) * (x - startingPosition.x) + (y - startingPosition.y) * (y - startingPosition.y) < (iterationCounter + 1) * (iterationCounter + 1)) {
-                    Vector2Int gridPosition = new Vector2Int(x,y);
-                    GridWithData.CellData cellData;
-                    if (grid.GetCellData(gridPosition, out cellData)) {
-                        if (!cellData.tile.isCorrupted) {
-                            cellData.tile.TagAsDangerZone();
-                        }
+        nextDangerZonePositions.Clear();
+        foreach (var gridPosition in currentDangerZonePositions) {
+            GridWithData.CellData cellData;
+            if (grid.GetCellData(gridPosition, out cellData)) {
+                if (cellData.tile.type == Tile.Type.Wall) {
+                    continue;
+                }
+                if (cellData.tile.isCorrupted) {
+                    continue;
+                }
+                cellData.tile.Corrupt();
+                corruptedCellCount++;
+         
+                if ((gridPosition.x <= -grid.size.x/2) ||
+                    (gridPosition.x >= grid.size.x/2) ||
+                    (gridPosition.y <= -grid.size.y/2) ||
+                    (gridPosition.y >= grid.size.y/2)) {
+                    edgeReached = true;
+                }
+
+                Vector2Int[] neighbourPositions = new Vector2Int[4];
+                neighbourPositions[0] = new Vector2Int(gridPosition.x - 1, gridPosition.y);
+                neighbourPositions[1] = new Vector2Int(gridPosition.x + 1, gridPosition.y);
+                neighbourPositions[2] = new Vector2Int(gridPosition.x, gridPosition.y - 1);
+                neighbourPositions[3] = new Vector2Int(gridPosition.x, gridPosition.y + 1);
+                                
+                foreach (var neighbourPosition in neighbourPositions) {
+                    if (TryToTagAsDangerZone(neighbourPosition)) {
+                        nextDangerZonePositions.Add(neighbourPosition);
                     }
                 }
+
             }
         }
+        currentDangerZonePositions = new List<Vector2Int>(nextDangerZonePositions);
+        
         OnSpread.Invoke();
+
+        return (edgeReached) ? Result.EdgeReached : Result.Success;
+    }
+
+    private bool TryToTagAsDangerZone(Vector2Int gridPosition) {
+        GridWithData.CellData cellData;
+        if (grid.GetCellData(gridPosition, out cellData)) {
+            if (cellData.tile.type == Tile.Type.Wall) {
+                return false;
+            }
+            if (cellData.tile.isCorrupted) {
+                return false;
+            }
+            cellData.tile.TagAsDangerZone();
+            return true;
+        }
+        return false;
     }
 
     public void AddDelay() {

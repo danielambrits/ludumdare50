@@ -86,11 +86,16 @@ public class TurnManager : MonoBehaviour
     private void TriggerNextTurn() {
         playerInput.enabled = false;
         OnPlayerTurnEnded.Invoke();
-        corruptionHandler.Apply();
+        if (corruptionHandler.Apply() == CorruptionHandler.Result.EdgeReached) {
+            ShowUiOnFailure();
+            playerInput.enabled = false;
+            OnGameLost.Invoke();
+        }
         remainingWallCount = GetPlacableWallCount();
         if (remainingWallCount == 0) {
             ShowUiOnFailure();
             playerInput.enabled = false;
+            OnGameLost.Invoke();
         } else {
             remainingWallUi.text = string.Format("Buildable walls: {0}", remainingWallCount);
             Debug.Log(string.Format("Builadbe walls this turn: {0}", remainingWallCount));
