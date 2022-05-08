@@ -12,6 +12,8 @@ public class SfxPlayer : MonoBehaviour
     [SerializeField]
     private AudioClip[] evacuationEndClips;
     [SerializeField]
+    private AudioClip[] buildingDestroyedClips;
+    [SerializeField]
     private AudioClip[] turnStartClips;
     [SerializeField]
     private AudioClip[] turnEndClips;
@@ -34,6 +36,8 @@ public class SfxPlayer : MonoBehaviour
         Tile.OnDelayedFactoryBuilt.AddListener(() => PlayRandomSfx(evacuationStartClips));
         Tile.OnHouseBuilt.AddListener(() => PlayRandomSfx(evacuationEndClips));
         Tile.OnFactoryBuilt.AddListener(() => PlayRandomSfx(evacuationEndClips));
+        Tile.OnFactoryDestroyed.AddListener(() => PlayRandomSfx(buildingDestroyedClips));
+        Tile.OnHouseDestroyed.AddListener(() => PlayRandomSfx(buildingDestroyedClips));
         Helipad.OnHelicopterActivated.AddListener(() => PlayRandomSfx(helicopterClips));
         CorruptionHandler.OnSpread.AddListener(() => PlayRandomSfx(spreadClips));
         TurnManager.OnCorruptionTurnEnded.AddListener(() => PlayRandomSfx(turnStartClips));
@@ -48,6 +52,8 @@ public class SfxPlayer : MonoBehaviour
         Tile.OnDelayedFactoryBuilt.RemoveListener(() => PlayRandomSfx(evacuationStartClips));
         Tile.OnHouseBuilt.RemoveListener(() => PlayRandomSfx(evacuationEndClips));
         Tile.OnFactoryBuilt.RemoveListener(() => PlayRandomSfx(evacuationEndClips));
+        Tile.OnFactoryDestroyed.RemoveListener(() => PlayRandomSfx(buildingDestroyedClips));
+        Tile.OnHouseDestroyed.RemoveListener(() => PlayRandomSfx(buildingDestroyedClips));
         Helipad.OnHelicopterActivated.RemoveListener(() => PlayRandomSfx(helicopterClips));
         CorruptionHandler.OnSpread.RemoveListener(() => PlayRandomSfx(spreadClips));
         TurnManager.OnCorruptionTurnEnded.RemoveListener(() => PlayRandomSfx(turnStartClips));

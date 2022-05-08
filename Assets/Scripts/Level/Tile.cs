@@ -114,18 +114,19 @@ public class Tile : MonoBehaviour, IPointerInteractable
                     case Type.House:
                         building = tileToEvacuate.building;
                         building.GetComponent<WallResourceBuilding>().Relocate(this);
+                        tileToEvacuate.Evacuate();
                         BuildDelayedHouse();
                         break;
                     case Type.Factory:
                         building = tileToEvacuate.building;
                         building.GetComponent<WallResourceBuilding>().Relocate(this);
+                        tileToEvacuate.Evacuate();
                         BuildDelayedFactory();
                         break;
                     default:
                         // NOP
                         break;
                 }
-                tileToEvacuate.Evacuate();
                 tileToEvacuate = null;
             }
         } else {

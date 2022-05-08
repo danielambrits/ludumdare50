@@ -23,6 +23,7 @@ public class TurnManager : MonoBehaviour
     private int houseCount;
     private int factoryCount;
 
+    private int buildableWallCount;
     private int remainingWallCount;
 
     public static UnityEvent OnCorruptionTurnEnded = new UnityEvent();
@@ -34,7 +35,12 @@ public class TurnManager : MonoBehaviour
     void Awake() {
         houseCount = 0;
         factoryCount = 0;
-        remainingWallCount = GetPlacableWallCount();
+    }
+
+    void Start() {
+        buildableWallCount = GetBuildableWallCount();
+        remainingWallCount = buildableWallCount;
+        remainingWallUi.text = string.Format("Buildable walls: {0}/{1}", remainingWallCount, buildableWallCount);
     }
 
     void OnEnable() {
@@ -74,7 +80,7 @@ public class TurnManager : MonoBehaviour
                 break;
             default:
                 remainingWallCount--;
-                remainingWallUi.text = string.Format("Buildable walls: {0}", remainingWallCount);
+                remainingWallUi.text = string.Format("Buildable walls: {0}/{1}", remainingWallCount, buildableWallCount);
                 if (remainingWallCount <= 0) {
                     TriggerNextTurn();
                 }
@@ -90,21 +96,25 @@ public class TurnManager : MonoBehaviour
     private void TriggerNextTurn() {
         playerInput.enabled = false;
         OnPlayerTurnEnded.Invoke();
+        
         if (corruptionHandler.Apply() == CorruptionHandler.Result.EdgeReached) {
             ShowUiOnFailure("Radiation reached the edge of the area.");
             playerInput.enabled = false;
             OnGameLost.Invoke();
             return;
         }
-        remainingWallCount = GetPlacableWallCount();
-        if (remainingWallCount == 0) {
+
+        OnCorruptionTurnEnded.Invoke();
+
+        buildableWallCount = GetBuildableWallCount();
+        if (buildableWallCount == 0) {
             ShowUiOnFailure("All resources for walls are destroyed.");
             playerInput.enabled = false;
             OnGameLost.Invoke();
         } else {
-            remainingWallUi.text = string.Format("Buildable walls: {0}", remainingWallCount);
-            Debug.Log(string.Format("Builadbe walls this turn: {0}", remainingWallCount));
-            OnCorruptionTurnEnded.Invoke();
+            remainingWallCount = buildableWallCount;
+            remainingWallUi.text = string.Format("Buildable walls: {0}/{1}", remainingWallCount, buildableWallCount);
+            Debug.Log(string.Format("Buildabe walls this turn: {0}", buildableWallCount));
             playerInput.enabled = true;
         }
     }
@@ -112,23 +122,27 @@ public class TurnManager : MonoBehaviour
     private void OnHouseBuilt() {
         houseCount++;
         evacuationUi.text = "Evacuation AVAILABLE";
+        Debug.Log(string.Format("HOUSE BUILT: {0}", houseCount));
     }
     
     private void OnFactoryBuilt() {
         factoryCount++;
         evacuationUi.text = "Evacuation AVAILABLE";
+        Debug.Log(string.Format("FACTORY BUILT: {0}", factoryCount));
     }
 
     private void OnHouseDestroyed() {
         if (houseCount > 0) {
             houseCount--;
         }
+        Debug.Log(string.Format("HOUSE DESTROYED: {0}", houseCount));
     }
 
     private void OnFactoryDestroyed() {
         if (factoryCount > 0) {
             factoryCount--;
         }
+        Debug.Log(string.Format("FACTORY DESTROYED: {0}", factoryCount));
     }
 
     private void OnEvacuationStarted() {
@@ -136,7 +150,7 @@ public class TurnManager : MonoBehaviour
         TriggerNextTurn();
     }
 
-    private int GetPlacableWallCount() {
+    private int GetBuildableWallCount() {
         return Mathf.Min(houseCount, factoryCount);
     }
 
