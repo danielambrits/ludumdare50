@@ -7443,7 +7443,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   grid: {fileID: 1737014426}
   startingPosition: {x: 0, y: 0}
-  initialSpreadCount: 4
+  initialSpreadCount: 3
   spreadPeriod: 2
   spreadDelayLength: 3
   uiHandler: {fileID: 7989669513395536576}

@@ -23,6 +23,7 @@ public class GridWithData : MonoBehaviour
     public struct CellData {
         public bool isInspected;
         public Tile tile;
+        public int corruptionScore;
     }
 
     private Dictionary<Vector2Int, CellData> gridMap = new Dictionary<Vector2Int, CellData>();
@@ -36,6 +37,7 @@ public class GridWithData : MonoBehaviour
                 CellData cellData;
                 cellData.isInspected = true;
                 cellData.tile = tile.GetComponent<Tile>();
+                cellData.corruptionScore = 0;
                 gridMap.Add(gridPosition, cellData);
             }
         }
@@ -49,6 +51,7 @@ public class GridWithData : MonoBehaviour
         foreach (var position in helipadPositions) {
             gridMap[position].tile.BuildHelipad();
         }
+
     }
 
     public bool GetCellData(Vector2Int gridPosition, out CellData cellData) {

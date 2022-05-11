@@ -15,6 +15,18 @@ public class CorruptionHandler : MonoBehaviour
     [SerializeField]
     private int spreadDelayLength;
 
+    [Header("Radiation Algorithm")]
+    [SerializeField]
+    private int emptyTileEdgeScore = 2;
+    [SerializeField]
+    private int emptyTileCornerScore = 1;
+    [SerializeField]
+    private int wallTileEdgeScore = 2;
+    [SerializeField]
+    private int wallTileCornerScore = 1;
+    [SerializeField]
+    private int totalScoreThreshold = 19;
+
     [Header("UI")]
     [SerializeField]
     private OvertextHandler uiHandler;
@@ -56,7 +68,15 @@ public class CorruptionHandler : MonoBehaviour
         gridCorners.Add(new Vector2Int(-grid.size.x/2, -grid.size.y/2));
 
         currentDangerZonePositions.Add(new Vector2Int(0, 0));
+        currentDangerZonePositions.Add(new Vector2Int(1, 0));
+        currentDangerZonePositions.Add(new Vector2Int(-1, 0));
+        currentDangerZonePositions.Add(new Vector2Int(0, 1));
+        currentDangerZonePositions.Add(new Vector2Int(0, -1));
 
+        foreach(var position in currentDangerZonePositions) {
+            TryToTagAsDangerZone(position);
+        }
+        
         for (int i = 0; i < initialSpreadCount; i++) {
             Spread();
         }
@@ -100,20 +120,100 @@ public class CorruptionHandler : MonoBehaviour
                     edgeReached = true;
                 }
 
-                Vector2Int[] neighbourPositions = new Vector2Int[4];
-                neighbourPositions[0] = new Vector2Int(gridPosition.x - 1, gridPosition.y);
-                neighbourPositions[1] = new Vector2Int(gridPosition.x + 1, gridPosition.y);
-                neighbourPositions[2] = new Vector2Int(gridPosition.x, gridPosition.y - 1);
-                neighbourPositions[3] = new Vector2Int(gridPosition.x, gridPosition.y + 1);
-                                
-                foreach (var neighbourPosition in neighbourPositions) {
-                    if (TryToTagAsDangerZone(neighbourPosition)) {
-                        nextDangerZonePositions.Add(neighbourPosition);
-                    }
-                }
-
             }
         }
+
+        for (int x = startingPosition.x - iterationCounter - 1; x <= startingPosition.x + iterationCounter + 1; x++) {
+            for (int y = startingPosition.y - iterationCounter - 1; y <= startingPosition.y + iterationCounter + 1; y++) {
+                GridWithData.CellData cellData;
+                Vector2Int gridPosition = new Vector2Int(x, y);
+                if (grid.GetCellData(gridPosition, out cellData)) {
+                    GridWithData.CellData tempCellData;
+                    int score = 0;
+                    int edgeScore = emptyTileEdgeScore;
+                    int cornerScore = emptyTileCornerScore;
+
+                    if (cellData.tile.type == Tile.Type.Wall) {
+                        edgeScore = wallTileEdgeScore;
+                        cornerScore = wallTileCornerScore;
+                    }
+
+                    if (edgeScore != 0) {
+                        Vector2Int[] edgeNeighbourPositions = new Vector2Int[4];
+                        edgeNeighbourPositions[0] = new Vector2Int(x - 1, y);
+                        edgeNeighbourPositions[1] = new Vector2Int(x + 1, y);
+                        edgeNeighbourPositions[2] = new Vector2Int(x, y - 1);
+                        edgeNeighbourPositions[3] = new Vector2Int(x, y + 1);
+                        foreach (var position in edgeNeighbourPositions) {
+                            if (grid.GetCellData(position, out tempCellData)) {
+                                if (tempCellData.tile.isCorrupted) {
+                                    score += edgeScore;
+                                }
+                            }
+                        }
+                    }
+                    if (cornerScore != 0) {
+                        Vector2Int[] cornerNeighbourPositions = new Vector2Int[4];
+                        cornerNeighbourPositions[0] = new Vector2Int(x - 1, y - 1);
+                        cornerNeighbourPositions[1] = new Vector2Int(x + 1, y - 1);
+                        cornerNeighbourPositions[2] = new Vector2Int(x - 1, y + 1);
+                        cornerNeighbourPositions[3] = new Vector2Int(x + 1, y + 1);
+                        foreach (var position in cornerNeighbourPositions) {
+                            if (grid.GetCellData(position, out tempCellData)) {
+                                if (tempCellData.tile.isCorrupted) {
+                                    score += cornerScore;
+                                }
+                            }
+                        }
+                    }
+                
+                    cellData.corruptionScore = score;
+                    grid.SetCellData(gridPosition, cellData);
+                    
+                }
+                
+            }
+        }
+
+        for (int x = startingPosition.x - iterationCounter - 1; x <= startingPosition.x + iterationCounter + 1; x++) {
+            for (int y = startingPosition.y - iterationCounter - 1; y <= startingPosition.y + iterationCounter + 1; y++) {
+                GridWithData.CellData cellData;
+                Vector2Int gridPosition = new Vector2Int(x, y);
+                if (grid.GetCellData(gridPosition, out cellData)) {
+                    int totalScore = 0;
+
+                    if (cellData.tile.type == Tile.Type.Wall) {
+                        continue;
+                    }
+                    if (cellData.tile.isCorrupted) {
+                        continue;
+                    }
+
+                    Vector2Int[] neighbourPositions = new Vector2Int[8];
+                    neighbourPositions[0] = new Vector2Int(x - 1, y);
+                    neighbourPositions[1] = new Vector2Int(x + 1, y);
+                    neighbourPositions[2] = new Vector2Int(x, y - 1);
+                    neighbourPositions[3] = new Vector2Int(x, y + 1);
+                    neighbourPositions[4] = new Vector2Int(x - 1, y - 1);
+                    neighbourPositions[5] = new Vector2Int(x + 1, y - 1);
+                    neighbourPositions[6] = new Vector2Int(x - 1, y + 1);
+                    neighbourPositions[7] = new Vector2Int(x + 1, y + 1);
+
+                    foreach (var position in neighbourPositions) {
+                        if (grid.GetCellData(position, out cellData)) {
+                            totalScore += cellData.corruptionScore;
+                        }
+                    }
+                    
+                    if (totalScore >= totalScoreThreshold) {
+                        if (TryToTagAsDangerZone(gridPosition)) {
+                            nextDangerZonePositions.Add(gridPosition);
+                        }
+                    }
+                }
+            }
+        }
+
         currentDangerZonePositions = new List<Vector2Int>(nextDangerZonePositions);
         
         OnSpread.Invoke();
@@ -149,7 +249,7 @@ public class CorruptionHandler : MonoBehaviour
 
         int foundCorruptedCells = 0;
 
-        int maxIterations = 1000; // just in case...
+        int maxIterations = 2000; // just in case...
 
         while (inspectablePositions.Count > 0) {
             if (maxIterations-- < 0) {
@@ -182,6 +282,10 @@ public class CorruptionHandler : MonoBehaviour
                     inspectablePositions.Push(new Vector2Int(gridPosition.x + 1, gridPosition.y));
                     inspectablePositions.Push(new Vector2Int(gridPosition.x, gridPosition.y - 1));
                     inspectablePositions.Push(new Vector2Int(gridPosition.x, gridPosition.y + 1));
+                    inspectablePositions.Push(new Vector2Int(gridPosition.x - 1, gridPosition.y - 1));
+                    inspectablePositions.Push(new Vector2Int(gridPosition.x + 1, gridPosition.y - 1));
+                    inspectablePositions.Push(new Vector2Int(gridPosition.x - 1, gridPosition.y + 1));
+                    inspectablePositions.Push(new Vector2Int(gridPosition.x + 1, gridPosition.y + 1));
                 }
             }
         }
