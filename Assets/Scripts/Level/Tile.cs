@@ -71,6 +71,14 @@ public class Tile : MonoBehaviour, IPointerInteractable
         evacuationAvailable = true;
     }
 
+    void OnEnable() {
+        WallResourceBuilding.OnEvacuationCancelled.AddListener(HidePlaceholderBuildings);
+    }
+
+    void OnDisable() {
+        WallResourceBuilding.OnEvacuationCancelled.RemoveListener(HidePlaceholderBuildings);
+    }
+
     public void OnPointerEnter() {
         meshRenderer.material.SetInt("_Selected", 1);
         if (tileToEvacuate != null) {
@@ -102,8 +110,7 @@ public class Tile : MonoBehaviour, IPointerInteractable
     public void OnPointerExit() {
         meshRenderer.material.SetInt("_Selected", 0);
         if (tileToEvacuate != null) {
-            housePlaceholder.SetActive(false);
-            factoryPlaceholder.SetActive(false);
+            HidePlaceholderBuildings();
         }
     }
 
@@ -244,9 +251,18 @@ public class Tile : MonoBehaviour, IPointerInteractable
         building.transform.SetParent(transform);
     }
 
-    public void NotifyToEvacuate() {
+    public bool NotifyToEvacuate() {
         if (evacuationAvailable) {
             tileToEvacuate = this;
+            return true;
+        }
+        return false;
+    }
+
+    public void NotifyEvacuationCancel() {
+        if (tileToEvacuate) {
+            tileToEvacuate = null;
+            evacuationAvailable = true;
         }
     }
 
@@ -267,6 +283,11 @@ public class Tile : MonoBehaviour, IPointerInteractable
                 // NOP
                 break;
         }
+    }
+
+    private void HidePlaceholderBuildings() {
+        housePlaceholder.SetActive(false);
+        factoryPlaceholder.SetActive(false);
     }
 
 }
