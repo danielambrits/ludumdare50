@@ -58,6 +58,9 @@ public class WallResourceBuilding : MonoBehaviour, IPointerInteractable
     }
 
     public void OnPointerDown() {
+        if (TurnManager.wallAlreadyBuiltIntHisTurn) {
+            return;
+        }
         if (baseTile.NotifyToEvacuate()) {
             inputActions.Player.Enable();
             inputActions.Player.Cancel.performed += ctx => OnEvacuationCancel();

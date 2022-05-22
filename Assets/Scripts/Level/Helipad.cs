@@ -20,6 +20,10 @@ public class Helipad : MonoBehaviour, IPointerInteractable
     private GameObject cooldownUiPrefab;
 
     public static UnityEvent OnHelicopterActivated = new UnityEvent();
+    public static UnityEvent OnHelipadCountChange = new UnityEvent();
+
+    public static int overallCount;
+    public static int inCooldownCount;
 
     private MeshRenderer meshRenderer;
     private OvertextHandler uiHandler;
@@ -27,10 +31,17 @@ public class Helipad : MonoBehaviour, IPointerInteractable
     private int cooldown;
 
     void OnEnable() {
+        overallCount++;
+        OnHelipadCountChange.Invoke();
         TurnManager.OnCorruptionTurnEnded.AddListener(ProgressCooldown);
     }
 
     void OnDisable() {
+        overallCount--;
+        if (cooldown > 0) {
+            inCooldownCount--;
+        }
+        OnHelipadCountChange.Invoke();
         TurnManager.OnCorruptionTurnEnded.RemoveListener(ProgressCooldown);
     }
 
@@ -39,6 +50,9 @@ public class Helipad : MonoBehaviour, IPointerInteractable
         meshRenderer.material.color = defaultColor;
 
         cooldown = startingCooldown;
+        if (startingCooldown > 0) {
+            inCooldownCount++;
+        }
         
         uiHandler = Instantiate(cooldownUiPrefab, transform.position, Quaternion.identity).GetComponent<OvertextHandler>();
         uiHandler.SetValue(cooldown);
@@ -53,6 +67,9 @@ public class Helipad : MonoBehaviour, IPointerInteractable
     }
 
     public void OnPointerDown() {
+        if (TurnManager.wallAlreadyBuiltIntHisTurn) {
+            return;
+        }
         ActivateHelicopter();
     }
 
@@ -60,6 +77,8 @@ public class Helipad : MonoBehaviour, IPointerInteractable
         if (cooldown > 0) {
             return;
         }
+        inCooldownCount++;
+        OnHelipadCountChange.Invoke();
         cooldown = helicopterCooldown;
         uiHandler.SetValue(cooldown);
         OnHelicopterActivated.Invoke();
@@ -69,6 +88,10 @@ public class Helipad : MonoBehaviour, IPointerInteractable
         if (cooldown > 0) {
             cooldown--;
             uiHandler.SetValue(cooldown);
+            if (cooldown == 0) {
+                inCooldownCount--;
+                OnHelipadCountChange.Invoke();
+            }
         }
     }
 

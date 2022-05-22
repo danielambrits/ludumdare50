@@ -32,9 +32,14 @@ public class TurnManager : MonoBehaviour
     public static UnityEvent OnGameWon = new UnityEvent();
     public static UnityEvent OnGameLost = new UnityEvent();
 
+    public static bool wallAlreadyBuiltIntHisTurn;
+
     void Awake() {
         houseCount = 0;
         factoryCount = 0;
+        wallAlreadyBuiltIntHisTurn = false;
+        Helipad.overallCount = 0; // TODO better place?
+        Helipad.inCooldownCount = 0;
     }
 
     void Start() {
@@ -66,6 +71,7 @@ public class TurnManager : MonoBehaviour
     }
 
     private void OnWallBuilt() {
+        wallAlreadyBuiltIntHisTurn = true;
         CorruptionHandler.WallState wallState = corruptionHandler.CheckWallDone();
         switch (wallState) {
             case CorruptionHandler.WallState.Done:
@@ -115,6 +121,7 @@ public class TurnManager : MonoBehaviour
             remainingWallCount = buildableWallCount;
             remainingWallUi.text = string.Format("Buildable walls: {0}/{1}", remainingWallCount, buildableWallCount);
             Debug.Log(string.Format("Buildabe walls this turn: {0}", buildableWallCount));
+            wallAlreadyBuiltIntHisTurn = false;
             playerInput.enabled = true;
         }
     }
