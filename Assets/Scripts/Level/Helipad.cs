@@ -20,6 +20,7 @@ public class Helipad : MonoBehaviour, IPointerInteractable
     private GameObject cooldownUiPrefab;
 
     public static UnityEvent OnHelicopterActivated = new UnityEvent();
+    public static UnityEvent OnInvalidActivation = new UnityEvent();
     public static UnityEvent OnHelipadCountChange = new UnityEvent();
 
     public static int overallCount;
@@ -68,6 +69,7 @@ public class Helipad : MonoBehaviour, IPointerInteractable
 
     public void OnPointerDown() {
         if (TurnManager.wallAlreadyBuiltIntHisTurn) {
+            OnInvalidActivation.Invoke();
             return;
         }
         ActivateHelicopter();
@@ -75,6 +77,7 @@ public class Helipad : MonoBehaviour, IPointerInteractable
 
     private void ActivateHelicopter() {
         if (cooldown > 0) {
+            OnInvalidActivation.Invoke();
             return;
         }
         inCooldownCount++;

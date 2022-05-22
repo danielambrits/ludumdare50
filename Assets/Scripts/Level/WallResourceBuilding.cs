@@ -27,6 +27,7 @@ public class WallResourceBuilding : MonoBehaviour, IPointerInteractable
 
     public static UnityEvent OnEvacuationStarted = new UnityEvent();
     public static UnityEvent OnEvacuationCancelled = new UnityEvent();
+    public static UnityEvent OnInvalidActivation = new UnityEvent();
 
     void OnEnable() {
         TurnManager.OnCorruptionTurnEnded.AddListener(ProgressCooldown);
@@ -59,12 +60,15 @@ public class WallResourceBuilding : MonoBehaviour, IPointerInteractable
 
     public void OnPointerDown() {
         if (TurnManager.wallAlreadyBuiltIntHisTurn) {
+            OnInvalidActivation.Invoke();
             return;
         }
         if (baseTile.NotifyToEvacuate()) {
             inputActions.Player.Enable();
             inputActions.Player.Cancel.performed += ctx => OnEvacuationCancel();
             OnEvacuationStarted.Invoke();
+        } else {
+            OnInvalidActivation.Invoke();
         }
     }
 

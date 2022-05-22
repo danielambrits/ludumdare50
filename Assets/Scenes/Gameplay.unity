@@ -651,7 +651,7 @@ MonoBehaviour:
   - {fileID: 8300000, guid: aa6e390711390984986f41e9d26e1f45, type: 3}
   - {fileID: 8300000, guid: d3103c0fd3f718e4bb1df7633e55c658, type: 3}
   helicopterClips:
-  - {fileID: 8300000, guid: 51ee7da3ae08cec459d34e1b7f40e954, type: 3}
+  - {fileID: 8300000, guid: eb0995afa39a24e4f8dc4da6257714c3, type: 3}
   evacuationStartClips:
   - {fileID: 8300000, guid: 736fd0f15fef29c4bbab471620bc6006, type: 3}
   evacuationEndClips:
@@ -664,6 +664,10 @@ MonoBehaviour:
   - {fileID: 8300000, guid: 4f1670c987b1edc45b902fba392fc1bd, type: 3}
   spreadClips:
   - {fileID: 8300000, guid: 779f8eb3ef093dc47a0c037e32935e52, type: 3}
+  cancelActionClips:
+  - {fileID: 8300000, guid: f58801ae9296f944d94a2971f1f80d74, type: 3}
+  invalidActionClips:
+  - {fileID: 8300000, guid: f485bb7954521b74cbb46442603abf3c, type: 3}
   victoryClips:
   - {fileID: 8300000, guid: e1ff96d44fe8f52459e5d9b587a82878, type: 3}
   - {fileID: 8300000, guid: c742bc05f766c544292d086f25b58e9a, type: 3}

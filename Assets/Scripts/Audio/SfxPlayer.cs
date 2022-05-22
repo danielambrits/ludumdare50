@@ -20,6 +20,10 @@ public class SfxPlayer : MonoBehaviour
     [SerializeField]
     private AudioClip[] spreadClips;
     [SerializeField]
+    private AudioClip[] cancelActionClips;
+    [SerializeField]
+    private AudioClip[] invalidActionClips;
+    [SerializeField]
     private AudioClip[] victoryClips;
     [SerializeField]
     private AudioClip[] failureClips;
@@ -39,6 +43,9 @@ public class SfxPlayer : MonoBehaviour
         Tile.OnFactoryDestroyed.AddListener(() => PlayRandomSfx(buildingDestroyedClips));
         Tile.OnHouseDestroyed.AddListener(() => PlayRandomSfx(buildingDestroyedClips));
         Helipad.OnHelicopterActivated.AddListener(() => PlayRandomSfx(helicopterClips));
+        Helipad.OnInvalidActivation.AddListener(() => PlayRandomSfx(invalidActionClips));
+        WallResourceBuilding.OnInvalidActivation.AddListener(() => PlayRandomSfx(invalidActionClips));
+        WallResourceBuilding.OnEvacuationCancelled.AddListener(() => PlayRandomSfx(cancelActionClips));
         CorruptionHandler.OnSpread.AddListener(() => PlayRandomSfx(spreadClips));
         TurnManager.OnCorruptionTurnEnded.AddListener(() => PlayRandomSfx(turnStartClips));
         TurnManager.OnPlayerTurnEnded.AddListener(() => PlayRandomSfx(turnEndClips));
@@ -55,6 +62,9 @@ public class SfxPlayer : MonoBehaviour
         Tile.OnFactoryDestroyed.RemoveListener(() => PlayRandomSfx(buildingDestroyedClips));
         Tile.OnHouseDestroyed.RemoveListener(() => PlayRandomSfx(buildingDestroyedClips));
         Helipad.OnHelicopterActivated.RemoveListener(() => PlayRandomSfx(helicopterClips));
+        Helipad.OnInvalidActivation.RemoveListener(() => PlayRandomSfx(invalidActionClips));
+        WallResourceBuilding.OnInvalidActivation.RemoveListener(() => PlayRandomSfx(invalidActionClips));
+        WallResourceBuilding.OnEvacuationCancelled.AddListener(() => PlayRandomSfx(cancelActionClips));
         CorruptionHandler.OnSpread.RemoveListener(() => PlayRandomSfx(spreadClips));
         TurnManager.OnCorruptionTurnEnded.RemoveListener(() => PlayRandomSfx(turnStartClips));
         TurnManager.OnPlayerTurnEnded.RemoveListener(() => PlayRandomSfx(turnEndClips));
