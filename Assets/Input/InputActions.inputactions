@@ -103,18 +103,9 @@
                     "initialStateCheck": false
                 },
                 {
-                    "name": "ShowHelp",
+                    "name": "ToggleHelp",
                     "type": "Button",
                     "id": "2dad751f-f459-41a7-9da3-6fce530e4e20",
-                    "expectedControlType": "Button",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
-                },
-                {
-                    "name": "HideHelp",
-                    "type": "Button",
-                    "id": "d549bbfe-129a-492b-8392-ba1de5d30258",
                     "expectedControlType": "Button",
                     "processors": "",
                     "interactions": "",
@@ -151,29 +142,7 @@
                     "interactions": "Press(behavior=1)",
                     "processors": "",
                     "groups": "",
-                    "action": "ShowHelp",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "fef9007d-d9ef-4a15-9272-88a6a2baba97",
-                    "path": "<Mouse>/leftButton",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "HideHelp",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "651adf3b-c9a1-4928-90c2-37bf956e122f",
-                    "path": "<Keyboard>/anyKey",
-                    "interactions": "Press",
-                    "processors": "",
-                    "groups": "",
-                    "action": "HideHelp",
+                    "action": "ToggleHelp",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

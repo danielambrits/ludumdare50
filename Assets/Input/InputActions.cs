@@ -125,18 +125,9 @@ public partial class @InputActions : IInputActionCollection2, IDisposable
                     ""initialStateCheck"": false
                 },
                 {
-                    ""name"": ""ShowHelp"",
+                    ""name"": ""ToggleHelp"",
                     ""type"": ""Button"",
                     ""id"": ""2dad751f-f459-41a7-9da3-6fce530e4e20"",
-                    ""expectedControlType"": ""Button"",
-                    ""processors"": """",
-                    ""interactions"": """",
-                    ""initialStateCheck"": false
-                },
-                {
-                    ""name"": ""HideHelp"",
-                    ""type"": ""Button"",
-                    ""id"": ""d549bbfe-129a-492b-8392-ba1de5d30258"",
                     ""expectedControlType"": ""Button"",
                     ""processors"": """",
                     ""interactions"": """",
@@ -173,29 +164,7 @@ public partial class @InputActions : IInputActionCollection2, IDisposable
                     ""interactions"": ""Press(behavior=1)"",
                     ""processors"": """",
                     ""groups"": """",
-                    ""action"": ""ShowHelp"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": """",
-                    ""id"": ""fef9007d-d9ef-4a15-9272-88a6a2baba97"",
-                    ""path"": ""<Mouse>/leftButton"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": """",
-                    ""action"": ""HideHelp"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": """",
-                    ""id"": ""651adf3b-c9a1-4928-90c2-37bf956e122f"",
-                    ""path"": ""<Keyboard>/anyKey"",
-                    ""interactions"": ""Press"",
-                    ""processors"": """",
-                    ""groups"": """",
-                    ""action"": ""HideHelp"",
+                    ""action"": ""ToggleHelp"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -213,8 +182,7 @@ public partial class @InputActions : IInputActionCollection2, IDisposable
         m_Global = asset.FindActionMap("Global", throwIfNotFound: true);
         m_Global_Quit = m_Global.FindAction("Quit", throwIfNotFound: true);
         m_Global_Restart = m_Global.FindAction("Restart", throwIfNotFound: true);
-        m_Global_ShowHelp = m_Global.FindAction("ShowHelp", throwIfNotFound: true);
-        m_Global_HideHelp = m_Global.FindAction("HideHelp", throwIfNotFound: true);
+        m_Global_ToggleHelp = m_Global.FindAction("ToggleHelp", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -325,16 +293,14 @@ public partial class @InputActions : IInputActionCollection2, IDisposable
     private IGlobalActions m_GlobalActionsCallbackInterface;
     private readonly InputAction m_Global_Quit;
     private readonly InputAction m_Global_Restart;
-    private readonly InputAction m_Global_ShowHelp;
-    private readonly InputAction m_Global_HideHelp;
+    private readonly InputAction m_Global_ToggleHelp;
     public struct GlobalActions
     {
         private @InputActions m_Wrapper;
         public GlobalActions(@InputActions wrapper) { m_Wrapper = wrapper; }
         public InputAction @Quit => m_Wrapper.m_Global_Quit;
         public InputAction @Restart => m_Wrapper.m_Global_Restart;
-        public InputAction @ShowHelp => m_Wrapper.m_Global_ShowHelp;
-        public InputAction @HideHelp => m_Wrapper.m_Global_HideHelp;
+        public InputAction @ToggleHelp => m_Wrapper.m_Global_ToggleHelp;
         public InputActionMap Get() { return m_Wrapper.m_Global; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -350,12 +316,9 @@ public partial class @InputActions : IInputActionCollection2, IDisposable
                 @Restart.started -= m_Wrapper.m_GlobalActionsCallbackInterface.OnRestart;
                 @Restart.performed -= m_Wrapper.m_GlobalActionsCallbackInterface.OnRestart;
                 @Restart.canceled -= m_Wrapper.m_GlobalActionsCallbackInterface.OnRestart;
-                @ShowHelp.started -= m_Wrapper.m_GlobalActionsCallbackInterface.OnShowHelp;
-                @ShowHelp.performed -= m_Wrapper.m_GlobalActionsCallbackInterface.OnShowHelp;
-                @ShowHelp.canceled -= m_Wrapper.m_GlobalActionsCallbackInterface.OnShowHelp;
-                @HideHelp.started -= m_Wrapper.m_GlobalActionsCallbackInterface.OnHideHelp;
-                @HideHelp.performed -= m_Wrapper.m_GlobalActionsCallbackInterface.OnHideHelp;
-                @HideHelp.canceled -= m_Wrapper.m_GlobalActionsCallbackInterface.OnHideHelp;
+                @ToggleHelp.started -= m_Wrapper.m_GlobalActionsCallbackInterface.OnToggleHelp;
+                @ToggleHelp.performed -= m_Wrapper.m_GlobalActionsCallbackInterface.OnToggleHelp;
+                @ToggleHelp.canceled -= m_Wrapper.m_GlobalActionsCallbackInterface.OnToggleHelp;
             }
             m_Wrapper.m_GlobalActionsCallbackInterface = instance;
             if (instance != null)
@@ -366,12 +329,9 @@ public partial class @InputActions : IInputActionCollection2, IDisposable
                 @Restart.started += instance.OnRestart;
                 @Restart.performed += instance.OnRestart;
                 @Restart.canceled += instance.OnRestart;
-                @ShowHelp.started += instance.OnShowHelp;
-                @ShowHelp.performed += instance.OnShowHelp;
-                @ShowHelp.canceled += instance.OnShowHelp;
-                @HideHelp.started += instance.OnHideHelp;
-                @HideHelp.performed += instance.OnHideHelp;
-                @HideHelp.canceled += instance.OnHideHelp;
+                @ToggleHelp.started += instance.OnToggleHelp;
+                @ToggleHelp.performed += instance.OnToggleHelp;
+                @ToggleHelp.canceled += instance.OnToggleHelp;
             }
         }
     }
@@ -386,7 +346,6 @@ public partial class @InputActions : IInputActionCollection2, IDisposable
     {
         void OnQuit(InputAction.CallbackContext context);
         void OnRestart(InputAction.CallbackContext context);
-        void OnShowHelp(InputAction.CallbackContext context);
-        void OnHideHelp(InputAction.CallbackContext context);
+        void OnToggleHelp(InputAction.CallbackContext context);
     }
 }

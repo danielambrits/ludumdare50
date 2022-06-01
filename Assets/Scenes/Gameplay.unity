@@ -1354,7 +1354,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5627099886528270344, guid: 0d4fabfb80fdcfe448ed30ecd700981b, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0
+      value: 6.1611443
       objectReference: {fileID: 0}
     - target: {fileID: 5627099886528270344, guid: 0d4fabfb80fdcfe448ed30ecd700981b, type: 3}
       propertyPath: m_LocalRotation.w
@@ -1394,7 +1394,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5627099886528270345, guid: 0d4fabfb80fdcfe448ed30ecd700981b, type: 3}
       propertyPath: m_text
-      value: Press any key or click to close this window
+      value: '[H] Close'
       objectReference: {fileID: 0}
     - target: {fileID: 5627099886528270345, guid: 0d4fabfb80fdcfe448ed30ecd700981b, type: 3}
       propertyPath: m_fontSizeBase

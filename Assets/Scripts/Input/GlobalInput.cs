@@ -16,16 +16,14 @@ public class GlobalInput : MonoBehaviour
         inputActions.Global.Enable();
         inputActions.Global.Quit.performed += ctx => Quit();
         inputActions.Global.Restart.performed += ctx => OnLevelReset();
-        inputActions.Global.ShowHelp.performed += ctx => OnShowHelpUi();
-        inputActions.Global.HideHelp.performed += ctx => OnHideHelpUi();
+        inputActions.Global.ToggleHelp.performed += ctx => OnShowHelpUi(!helpUi.active);
     }
 
     void OnDisable() {
         inputActions.Global.Disable();
         inputActions.Global.Quit.performed -= ctx => Quit();
         inputActions.Global.Restart.performed -= ctx => OnLevelReset();
-        inputActions.Global.ShowHelp.performed -= ctx => OnShowHelpUi();
-        inputActions.Global.HideHelp.performed -= ctx => OnHideHelpUi();
+        inputActions.Global.ToggleHelp.performed -= ctx => OnShowHelpUi(!helpUi.active);
     }
 
     private void OnLevelReset() {
@@ -40,14 +38,8 @@ public class GlobalInput : MonoBehaviour
         #endif
     }
 
-    private void OnShowHelpUi() {
-        helpUi.SetActive(true);
-        inputActions.Global.HideHelp.performed += ctx => OnHideHelpUi();
-    }
-
-    private void OnHideHelpUi() {
-        helpUi.SetActive(false);
-        inputActions.Global.HideHelp.performed -= ctx => OnHideHelpUi();
+    private void OnShowHelpUi(bool show) {
+        helpUi.SetActive(show);
     }
 
 }
